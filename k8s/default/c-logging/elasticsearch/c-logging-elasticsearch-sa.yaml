@@ -9,5 +9,5 @@ metadata:
   labels:
     k8s-app: c-logging-elasticsearch
     app.kubernetes.io/version: "8.17.0"
-imagePullSecrets:
-  - name: {{ cCatalogBaseimagePullSecret }}
+# imagePullSecrets:
+#   - name: {{ cCatalogBaseimagePullSecret }} 

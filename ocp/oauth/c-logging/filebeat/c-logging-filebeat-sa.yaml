@@ -10,5 +10,5 @@ metadata:
     helm.sh/chart: filebeat-4.0.0
     app.kubernetes.io/instance: c-logging-filebeat
     app.kubernetes.io/managed-by: Helm
-imagePullSecrets:
-  - name: {{ cCatalogBaseimagePullSecret }}
+# imagePullSecrets:
+#   - name: {{ cCatalogBaseimagePullSecret }} 

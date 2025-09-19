@@ -8,5 +8,5 @@ metadata:
   namespace: c-logging
   labels:
     k8s-app: c-logging-elasticsearch
-imagePullSecrets:
-  - name: {{ cCatalogBaseimagePullSecret }}
+# imagePullSecrets:
+#   - name: {{ cCatalogBaseimagePullSecret }} 
