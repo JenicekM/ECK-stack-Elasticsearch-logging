@@ -36,8 +36,7 @@ spec:
       securityContext:
         runAsNonRoot: true
       containers:
-      - image: "{{ imageInstanceLocation }}/{{ eckOperatorImageName }}:{{ eckOperatorImageTag }}"
-        imagePullPolicy: IfNotPresent
+      - image: "docker.elastic.co/eck/eck-operator:latest"        imagePullPolicy: IfNotPresent
         name: manager
         args:
         - "manager"

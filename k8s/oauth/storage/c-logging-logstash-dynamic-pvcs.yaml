@@ -16,5 +16,5 @@
    - ReadWriteOnce
    resources:
      requests:
-       storage: "{{ logstashStorageSize }}"
-   storageClassName: "{{ logstashStorageClass }}"
+       storage: "5Gi"
+   storageClassName: "ocs-external-storagecluster-ceph-rbd"

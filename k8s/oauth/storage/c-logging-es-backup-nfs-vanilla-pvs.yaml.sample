@@ -14,7 +14,7 @@ metadata:
     k8s-app: c-logging-elasticsearch
 spec:
   capacity:
-    storage: "{{ elasticsearchBackupStorageSize }}"
+    storage: "20Gi"
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -59,6 +59,6 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: {{ elasticsearchBackupStorageSize }}
+      storage: 20Gi
   storageClassName: ""
   volumeName: c-logging-elasticsearch-backup

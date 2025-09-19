@@ -16,5 +16,5 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: {{ elasticsearchBackupStorageSize }}
-  storageClassName: "{{ elasticsearchBackupStorageClass }}"
+      storage: 20Gi
+  storageClassName: "ocs-external-storagecluster-ceph-rbd"

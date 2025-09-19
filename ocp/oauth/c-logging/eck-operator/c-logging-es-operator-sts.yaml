@@ -28,7 +28,7 @@ spec:
     spec:
       serviceAccountName: c-logging-operator
       containers:
-      - image: "{{ imageInstanceLocation }}/{{ eckOperatorImageName }}:{{ eckOperatorImageTag }}" 
+      - image: "docker.elastic.co/eck/eck-operator:2.12.1" 
         name: manager
         args:
           - "manager"
@@ -55,7 +55,7 @@ spec:
           #- name: WEBHOOK_PODS_LABEL
           #  value: c-logging-operator
           - name: OPERATOR_IMAGE
-            value: "{{ imageInstanceLocation }}/{{ eckOperatorImageName }}:{{ eckOperatorImageTag }}"
+            value: "docker.elastic.co/eck/eck-operator:2.12.1"
         resources:
           limits:
             cpu: 1

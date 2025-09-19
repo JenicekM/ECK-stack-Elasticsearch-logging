@@ -14,7 +14,7 @@ metadata:
     k8s-app: c-logging-elasticsearch
 spec:
   capacity:
-    storage: {{ elasticsearchStorageSize }}
+    storage: 20Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -51,7 +51,7 @@ metadata:
     k8s-app: c-logging-elasticsearch
 spec:
   capacity:
-    storage: {{ elasticsearchStorageSize }}
+    storage: 20Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -88,7 +88,7 @@ metadata:
     k8s-app: c-logging-elasticsearch
 spec:
   capacity:
-    storage: {{ elasticsearchStorageSize }}
+    storage: 20Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -133,7 +133,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: {{ elasticsearchStorageSize }}
+      storage: 20Gi
   storageClassName: ""
   volumeName: c-logging-elasticsearch-0
 
@@ -152,7 +152,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: {{ elasticsearchStorageSize }}
+      storage: 20Gi
   storageClassName: ""
   volumeName: c-logging-elasticsearch-1
 
@@ -171,6 +171,6 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: {{ elasticsearchStorageSize }}
+      storage: 20Gi
   storageClassName: ""
   volumeName: c-logging-elasticsearch-2

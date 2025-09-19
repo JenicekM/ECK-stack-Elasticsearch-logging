@@ -14,7 +14,7 @@ metadata:
     k8s-app: c-logging-logstash
 spec:
   capacity:
-    storage: "{{ logstashStorageSize }}"
+    storage: "5Gi"
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
@@ -56,5 +56,5 @@ spec:
   storageClassName: ""
   resources:
     requests:
-      storage: "{{ logstashStorageSize }}"
+      storage: "5Gi"
   volumeName: c-logging-logstash

@@ -15,8 +15,8 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: {{ elasticsearchStorageSize }}
-  storageClassName: "{{ elasticsearchStorageClass }}"
+      storage: 20Gi
+  storageClassName: "ocs-external-storagecluster-ceph-rbd"
 
 ---
 
@@ -34,8 +34,8 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: {{ elasticsearchStorageSize }}
-  storageClassName: "{{ elasticsearchStorageClass }}"
+      storage: 20Gi
+  storageClassName: "ocs-external-storagecluster-ceph-rbd"
 
 ---
 
@@ -53,5 +53,5 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: {{ elasticsearchStorageSize }}
-  storageClassName: "{{ elasticsearchStorageClass }}"
+      storage: 20Gi
+  storageClassName: "ocs-external-storagecluster-ceph-rbd"
