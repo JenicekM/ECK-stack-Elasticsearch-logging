@@ -26,7 +26,7 @@ spec:
       serviceAccount: c-logging-ilm-slm
       containers:
       - name: c-logging-slm
-        image: "{{ imageInstanceLocation }}/{{ elasticImageName }}:{{ elasticImageTag }}"
+        image: "docker.elastic.co/elasticsearch/elasticsearch:8.12.2"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/bash

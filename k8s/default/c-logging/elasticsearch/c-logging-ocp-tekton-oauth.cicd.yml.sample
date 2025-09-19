@@ -1,0 +1,274 @@
+unit-id: c-logging
+description: "c-logging"
+actions:
+  #- apply
+  #- deploy
+  #- update
+  #- delete
+
+deployment:
+
+  - name: "Deploy c-logging namespace"
+    state: enable
+    deploy_dir: "ocp/oauth/ns"
+    deploy_method: oc
+    waitforseconds: 0
+    targets:
+      - name: <targetCluster>                                 # e.g. ibc-abc-dev-0003-k01
+        namespace: c-logging
+        targetId: <targetCluster>                             # e.g. ibc-abc-dev-0003-k01
+        type: k8s_clusters
+        waitforseconds: 0
+    replace_vars:
+
+      # Cluster definitions
+      - name: "{{ k8sNamespace }}"
+        value: "c-logging"
+
+  - name: "Deploy c-logging namespace config"
+    state: enable
+    deploy_dir: "ocp/oauth/ns-config"
+    deploy_method: oc
+    waitforseconds: 0
+    targets:
+      - name: <targetCluster>                                 # e.g. ibc-abc-dev-0003-k01
+        namespace: c-logging
+        targetId: <targetCluster>                             # e.g. ibc-abc-dev-0003-k01
+        type: k8s_clusters
+        waitforseconds: 0
+    replace_vars:
+
+      # Cluster definitions
+      - name: "{{ k8sNamespace }}"
+        value: "c-logging"
+        
+      # ImagePullSecret
+      - name: "{{ cCatalogBaseimagePullSecret }}"
+        value: "{{ global.mf.imageRegistryNamespaces.c-catalog-base.name }}-cr-ro"
+      - name: "{{ c-catalog-base-secretB64 }}"
+        value: "vault://iscp/data/{{ global.instanceName }}/shared/registries/de-icr-io/{{ global.mf.imageRegistryNamespaces.c-catalog-base.name }}--secretRoB64"
+      - name: "{{ dCoreBaseimagePullSecret }}"
+        value: "{{ global.mf.imageRegistryNamespaces.d-core-base.name }}-cr-ro"
+      - name: "{{ d-core-base-secretB64 }}"
+        value: "vault://iscp/data/{{ global.instanceName }}/shared/registries/de-icr-io/{{ global.mf.imageRegistryNamespaces.d-core-base.name }}--secretRoB64"
+      - name: "{{ imageInstanceLocation }}"
+        value: "de.icr.io/{{ global.mf.imageRegistryNamespaces.c-catalog-base.name }}"
+
+  - name: "Deploy c-logging storage"
+    state: enable
+    deploy_dir: "ocp/oauth/storage"
+    deploy_method: oc
+    waitforseconds: 0
+    targets:
+      - name: <targetCluster>                                 # e.g. ibc-abc-dev-0003-k01
+        namespace: c-logging
+        targetId: <targetCluster>                             # e.g. ibc-abc-dev-0003-k01
+        type: k8s_clusters
+        waitforseconds: 0
+    replace_vars:
+
+      # Cluster definitions
+      - name: "{{ k8sNamespace }}"
+        value: "c-logging"
+      
+      # Storage
+      # d-storage-nfs-01 or ibmc-block-retain-gold
+      - name: "ocs-external-storagecluster-ceph-rbd"                   
+        value: "[[ elasticsearchStorageClass ]]"
+      - name: "20Gi"                    # Default: 100Gi
+        value: "100Gi"
+      - name: "ocs-external-storagecluster-ceph-rbd"             
+        value: "[[ elasticsearchBackupStorageClass ]]"
+      - name: "20Gi"              # Default: 100Gi
+        value: "100Gi"
+      - name: "ocs-external-storagecluster-ceph-rbd"                        
+        value: "[[ logstashStorageClass ]]"
+      - name: "5Gi"                         # Default: 5Gi
+        value: "5Gi"
+
+      # To be filled only with vanilla clusters
+      # - name: "{{ nfsServer }}"                                    # NFS (for example: fsf-lon0201k-fz.service.softlayer.com)
+      #   value: ""
+      # - name: "{{ nfsShare }}"                                     # NFS data (for example: /IBM02SV1024007_7/data01)
+      #   value: ""
+      # - name: "{{ blockId }}"                                      # BlockId (for example: ibc-abc-dev-0003)
+      #   value: ""
+      # - name: "{{ k8sClusterId }}"                                 
+      #   value: "<targetCluster>"
+
+      # To be filled only with multizone clusters
+      # - name: "{{ region }}"                                    # Region (for example: eu-de)
+      #   value: ""
+      # - name: "{{ zone1 }}"                                     # First availability zone (for example: fra02)
+      #   value: ""
+      # - name: "{{ zone2 }}"                                     # Second availability zone (for example: fra04)
+      #   value: ""
+      # - name: "{{ zone3 }}"                                     # Third availability zone (for example: fra06)
+      #   value: ""   
+
+  - name: "Deploy c-logging CRDs"
+    state: enable
+    deploy_dir: "ocp/oauth/crds"
+    deploy_method: kubectl
+    waitforseconds: 0
+    targets:
+      - name: <targetCluster>                                 # e.g. ibc-abc-dev-0003-k01
+        namespace: c-logging
+        targetId: <targetCluster>                             # e.g. ibc-abc-dev-0003-k01
+        type: k8s_clusters
+        waitforseconds: 0
+    replace_vars:
+
+      # Cluster definitions
+      - name: "{{ k8sNamespace }}"
+        value: "c-logging"
+
+  - name: "Deploy c-logging stack"
+    state: enable
+    deploy_dir: "ocp/oauth/c-logging"
+    deploy_method: oc
+    waitforseconds: 0
+    targets:
+      - name: <targetCluster>                                 # e.g. ibc-abc-dev-0003-k01
+        namespace: c-logging
+        targetId: <targetCluster>                             # e.g. ibc-abc-dev-0003-k01
+        type: k8s_clusters
+        waitforseconds: 60 
+    replace_vars:
+
+      # Cluster definitions
+      - name: "{{ k8sNamespace }}"
+        value: "c-logging"
+      - name: "{{ cCatalogBaseimagePullSecret }}"
+        value: "{{ global.mf.imageRegistryNamespaces.c-catalog-base.name }}-cr-ro"
+      - name: "{{ imageInstanceLocation }}"
+        value: "de.icr.io/{{ global.mf.imageRegistryNamespaces.c-catalog-base.name }}"
+
+      # ECK-Operator
+      - name: "{{ eckOperatorImageName }}"
+        value: "c-logging_eck-operator"  
+      - name: "{{ eckOperatorImageTag }}"
+        value: "2.16.1-1.10.0"
+
+      # Elasticsearch
+      - name: "{{ elasticImageName }}"
+        value: "c-logging_elasticsearch"  
+      - name: "{{ docker.elastic.co/elasticsearch/elasticsearch:8.12.2}}"
+        value: "8.17.0-1.10.0"
+
+      # Limit resources
+      - name: "{{ elasticsearchNodes }}"
+        value: "3"
+      - name: "{{ elasticsearchResourcesMemoryLimit }}"
+        value: "6Gi"
+      - name: "{{ elasticsearchResourcesCPULimit }}"
+        value: "1"
+      - name: "{{ elasticsearchResourcesMemoryRequests }}"
+        value: "4Gi"
+      - name: "{{ elasticsearchResourcesCPURequests }}"
+        value: "500m"
+
+      # To be filled only with multizone clusters
+      # - name: "{{ zone1 }}"                                     # First availability zone (for example: fra02)
+      #   value: ""
+      # - name: "{{ zone2 }}"                                     # Second availability zone (for example: fra04)
+      #   value: ""
+      # - name: "{{ zone3 }}"                                     # Third availability zone (for example: fra04)
+      #   value: ""  
+
+      # Kibana
+      - name: "{{ kibanaImageName }}"
+        value: "c-logging_kibana"  
+      - name: "{{ kibanaImageTag }}"
+        value: "8.17.0-1.10.0"
+
+      # Limit resources
+      - name: "{{ kibanaResourcesMemoryLimit }}"
+        value: "2Gi"
+      - name: "{{ kibanaResourcesCPULimit }}"
+        value: "1"
+
+      # OCP Route
+      - name: "{{ kibanaHost }}"
+        value: c-logging-kibana.apps.<subDomain_default_OpenShift_Router>            #e.g c-logging-kibana.apps.onp-tst-tst-0002-k01.lab.domain
+
+      # Image data proxy oauth
+      - name: "{{ imagePullSecretBase }}"
+        value: "{{ global.mf.imageRegistryNamespaces.d-core-base.name }}-cr-ro"
+      - name: "{{ proxyImageInstanceLocation }}"
+        value: "de.icr.io/{{ global.mf.imageRegistryNamespaces.d-core-base.name }}"
+      - name: "{{ oauthProxyImageName }}"
+        value: "d-auth_oauth-proxy"  
+      - name: "{{ oauthProxyImageTag }}"
+        value: "4.12.0-1.1.1"
+        
+      # Proxy session secret
+      - name: "{{ sessionSecretB64 }}"
+        value: "vault://iscp/data/{{ global.instanceName }}/<accountId>/<tenantId>/apps/c-logging-kibana--sessionSecretB64"
+
+      # Logstash
+      - name: "{{ busyboxImageName }}"
+        value: "c-logging_busybox"  
+      - name: "{{ busyboxImageTag }}"
+        value: "1.36.0-1.8.0"
+      - name: "{{ logstashImageName }}"
+        value: "c-logging_logstash"  
+      - name: "{{ logstashImageTag }}"
+        value: "8.17.0-1.10.0"
+      - name: "{{ logstashExporterImageName }}"
+        value: "c-logging_logstash-exporter"  
+      - name: "{{ logstashExporterImageTag }}"
+        value: "1.6.2-1.9.0"
+
+      # Limit resources
+      - name: "{{ logstashResourcesMemoryLimit }}"
+        value: "2Gi"
+      - name: "{{ logstashResourcesCPULimit }}"
+        value: "1"
+      - name: "{{ logstashExporterResourcesMemoryLimit }}"
+        value: "128Mi"
+      - name: "{{ logstashExporterResourcesCPULimit }}"
+        value: "100m"
+      
+      # Filebeat
+      - name: "{{ filebeatImageName }}"
+        value: "c-logging_filebeat"  
+      - name: "{{ filebeatImageTag }}"
+        value: "8.17.0-1.10.0"
+      - name: "{{ beatExporterImageName }}"
+        value: "c-logging_beats-exporter"  
+      - name: "{{ beatExporterImageTag }}"
+        value: "20230331-1.8.1"
+
+      # Limit resources
+      - name: "{{ filebeatResourcesMemoryLimit }}"
+        value: "250Mi"
+      - name: "{{ filebeatResourcesCPULimit }}"
+        value: "200m"
+
+      # Elasticsearch-exporter
+      - name: "{{ elasticExporterImageName }}"
+        value: "c-logging_elasticsearch-exporter"  
+      - name: "{{ elasticExporterImageTag }}"
+        value: "1.7.0-1.9.0"
+
+      # Backup
+      - name: "{{ snapshotRepoName }}"                            # Default: backup_repo
+        value: "backup_repo"
+      - name: "{{ snapshotSchedule }}"                            # Snapshot scheduling. Default: Every day at 4:00AM
+        value: "0 30 2 * * ?"
+      - name: "{{ snapshotRetention }}"                           # Snapshot retention. Default: 7 days
+        value: "7d"
+
+      # Vault paths used only with S3 backup
+      # - name: "{{ cosEndpoint }}"                     # COS Enpoint to storage the backup
+      #   value: "vault://iscp/data/{{ global.instanceName }}/<accountId>/<tenantId>/apps/c-logging-kibana--cosEndpoint"
+      # - name: "{{ cosBucket }}"                       # COS Bucket name to storage the backup
+      #   value: "vault://iscp/data/{{ global.instanceName }}/<accountId>/<tenantId>/apps/c-logging-kibana--cosBucket"
+      # - name: "{{ cosAccessKey }}"                    # COS Access Key
+      #   value: "vault://iscp/data/{{ global.instanceName }}/<accountId>/<tenantId>/apps/c-logging-kibana--cosAccessKeyB64"
+      # - name: "{{ cosSecretKey }}"                    # COS Secret Key
+      #   value: "vault://iscp/data/{{ global.instanceName }}/<accountId>/<tenantId>/apps/c-logging-kibana--cosSecretKeyB64"
+
+
+

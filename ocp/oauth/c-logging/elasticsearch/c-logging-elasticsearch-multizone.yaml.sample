@@ -16,7 +16,7 @@ metadata:
     app.kubernetes.io/component: elasticsearch
     app.kubernetes.io/version: 8.17.0
 spec:
-  image: "{{ imageInstanceLocation }}/{{ elasticImageName }}:{{ elasticImageTag }}"
+  image: "docker.elastic.co/elasticsearch/elasticsearch:8.12.2"
   # #
   # # Uncomment this (secureSettings section) if s3 backup is needed
   # # 
