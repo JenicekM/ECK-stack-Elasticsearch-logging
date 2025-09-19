@@ -1,0 +1,60 @@
+---
+#
+# For OnPrem clusters with static NFS environments
+# NOTE: all templated varibles will be filled by the CICD tool
+#
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  finalizers:
+  - kubernetes.io/pv-protection
+  name: c-logging-logstash
+  labels:
+    k8s-app: c-logging-logstash
+spec:
+  capacity:
+    storage: "{{ logstashStorageSize }}"
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: c-logging
+    name: c-logging-logstash
+  storageClassName: ""
+  mountOptions:
+   - nordirplus
+   - hard
+   - nolock
+   - local_lock=all
+   - nfsvers=3
+   - mountvers=3
+   - proto=tcp
+   - mountproto=udp
+   - noatime
+   - nodiratime
+  nfs:
+    server: "{{ nfsServer }}"
+    path: "{{ nfsShare }}/docker-volumes/{{ blockId }}/{{ k8sClusterId }}/c-logging/c-logging-logstash"
+
+---
+#
+# Definitions for static PVC provision in vanilla clusters
+#
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: c-logging-logstash
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-logstash
+spec:
+  accessModes:
+  - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: "{{ logstashStorageSize }}"
+  volumeName: c-logging-logstash

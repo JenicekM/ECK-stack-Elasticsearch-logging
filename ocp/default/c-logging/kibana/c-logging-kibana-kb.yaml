@@ -1,0 +1,57 @@
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: c-logging-kibana
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-kibana
+    app.kubernetes.io/managed-by: iscp
+    app.kubernetes.io/app-name: application_logging
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: application
+    app.kubernetes.io/component: kibana
+    app.kubernetes.io/version: 8.17.0
+spec:
+  image: "{{ imageInstanceLocation }}/{{ kibanaImageName }}:{{ kibanaImageTag }}"
+  version: 8.17.0
+  count: 1
+  elasticsearchRef:
+    name: c-logging-elasticsearch
+  config:
+    elasticsearch.requestTimeout: 90000
+  http:
+    service:
+      spec:
+        type: ClusterIP
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  podTemplate:
+    metadata:
+      name: c-logging-kibana
+    spec:
+      serviceAccountName: c-logging-kibana
+      ## Allow the oauth-proxy access to the token
+      automountServiceAccountToken: true
+      containers:
+      - name: kibana
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: 0.5
+          limits:
+            memory: {{ kibanaResourcesMemoryLimit }}
+            cpu: {{ kibanaResourcesCPULimit }}
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 5601
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+          

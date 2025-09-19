@@ -1,0 +1,86 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: c-logging-kibana-index-pattern-creation
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-kibana
+    app.kubernetes.io/managed-by: iscp
+    app.kubernetes.io/app-name: platform_logging
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: platform
+    app.kubernetes.io/component: kibana
+    app.kubernetes.io/version: 8.17.0
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: c-logging-kibana
+    spec:
+      serviceAccount: c-logging-kibana-oauth
+      initContainers:
+      - name: wait
+        image: "{{ imageInstanceLocation }}/{{ kibanaImageName }}:{{ kibanaImageTag }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: KIBANA_PROTOCOL
+          value: "http"
+        - name: KIBANA_HOST
+          value: "c-logging-kibana-kb-http.c-logging.svc"
+        - name: KIBANA_PORT
+          value: "5601"
+        command:
+        - /bin/bash
+        args:
+        - -c
+        - |
+          echo "Waiting the c-logging Kibana to be available"
+          while ! curl -XGET "$KIBANA_PROTOCOL://$KIBANA_HOST:$KIBANA_PORT/login" -s -o /dev/null; do 
+            sleep 10
+          done
+          echo "Done"
+      containers:
+      - name: c-logging-kibana-index-pattern-creation
+        image: "{{ imageInstanceLocation }}/{{ kibanaImageName }}:{{ kibanaImageTag }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/bash
+        args:
+        - -c
+        - |
+          echo "Creating the * index pattern"
+          curl -X POST "$KIBANA_PROTOCOL://$KIBANA_HOST:$KIBANA_PORT/api/saved_objects/index-pattern/c-logging-logs-pattern" -u $ELASTICSEARCH_USER:$ELASTICSEARCH_PASSWORD -H "kbn-xsrf: true" -H "Content-Type: application/json" -d'
+          {
+            "attributes": {
+              "title": "*",
+              "timeFieldName": "@timestamp"
+            }
+          }
+          '
+          echo "Setup finished, exiting ..."
+        env:
+        - name: KIBANA_PROTOCOL
+          value: "http"
+        - name: KIBANA_HOST
+          value: "c-logging-kibana-kb-http.c-logging.svc"
+        - name: KIBANA_PORT
+          value: "5601"
+        - name: ELASTICSEARCH_USER
+          value: "elastic"
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: elastic
+              name: c-logging-elasticsearch-es-elastic-user
+        resources:
+          limits:
+            cpu: 400m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+      restartPolicy: OnFailure

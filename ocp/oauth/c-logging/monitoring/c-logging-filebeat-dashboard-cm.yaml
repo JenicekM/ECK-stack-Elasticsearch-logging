@@ -1,0 +1,2358 @@
+---
+# Source/ Based on: https://grafana.com/grafana/dashboards/10600
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: c-logging-filebeat-exporter
+  namespace: c-logging
+  labels:
+    app: c-logging-filebeat-exporter
+    grafana_c-monitoring_dashboard: "1"
+data:
+  filebeat-exporter.json: |
+    {
+    "annotations": {
+        "list": [
+        {
+            "$$hashKey": "object:161",
+            "builtIn": 1,
+            "datasource": "-- Grafana --",
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+        }
+        ]
+    },
+    "description": "Dashboard for Filebeat from Prometheus.",
+    "editable": true,
+    "gnetId": 10600,
+    "graphTooltip": 0,
+    "id": 44,
+    "iteration": 1660739175831,
+    "links": [],
+    "panels": [
+        {
+        "collapsed": false,
+        "datasource": null,
+        "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+        },
+        "id": 38,
+        "panels": [],
+        "title": "HOST - System and CPU",
+        "type": "row"
+        },
+        {
+        "datasource": null,
+        "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 0,
+            "y": 1
+        },
+        "id": 40,
+        "options": {
+            "colorMode": "value",
+            "fieldOptions": {
+            "calcs": [
+                "last"
+            ],
+            "defaults": {
+                "mappings": [],
+                "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                    "color": "green",
+                    "value": null
+                    }
+                ]
+                }
+            },
+            "overrides": [],
+            "values": false
+            },
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto"
+        },
+        "pluginVersion": "6.7.4",
+        "targets": [
+            {
+            "expr": "sum(filebeat_system_cpu_cores{instance=~\"$instance\"}) /  count(filebeat_system_cpu_cores{instance=~\"$instance\"})",
+            "refId": "A"
+            }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "HOST - CPU CORES",
+        "type": "stat"
+        },
+        {
+        "content": "---\n---\n**$podname**\n---\n---\n---",
+        "datasource": null,
+        "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 4,
+            "y": 1
+        },
+        "id": 47,
+        "mode": "markdown",
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "",
+        "type": "text"
+        },
+        {
+        "content": "---\n---\nFilebeat version: **$version**\n---\n---\n---",
+        "datasource": null,
+        "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 10,
+            "y": 1
+        },
+        "id": 48,
+        "mode": "markdown",
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "",
+        "type": "text"
+        },
+        {
+        "datasource": null,
+        "gridPos": {
+            "h": 5,
+            "w": 8,
+            "x": 16,
+            "y": 1
+        },
+        "id": 45,
+        "options": {
+            "colorMode": "value",
+            "fieldOptions": {
+            "calcs": [
+                "last"
+            ],
+            "defaults": {
+                "mappings": [],
+                "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                    "color": "red",
+                    "value": null
+                    },
+                    {
+                    "color": "green",
+                    "value": 300000
+                    }
+                ]
+                },
+                "unit": "ms"
+            },
+            "overrides": [],
+            "values": false
+            },
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto"
+        },
+        "pluginVersion": "6.7.4",
+        "targets": [
+            {
+            "expr": "filebeat_beat_info_uptime_ms{instance=~\"$instance\"}",
+            "refId": "A"
+            }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Filebeat - Uptime [Single Host]",
+        "type": "stat"
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 6
+        },
+        "hiddenSeries": false,
+        "id": 26,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_system_load_1{instance=~\"$instance\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "LOAD 1 - {{instance}}",
+            "refId": "A"
+            },
+            {
+            "expr": "rate(filebeat_system_load_5{instance=~\"$instance\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "LOAD 5 - {{instance}}",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_system_load_15{instance=~\"$instance\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "LOAD 15 - {{instance}}",
+            "refId": "C"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "System CPU Load [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 6
+        },
+        "hiddenSeries": false,
+        "id": 25,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_system_load{instance=~\"$instance\",norm=\"1\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "NORM 1 - {{instance}}",
+            "refId": "A"
+            },
+            {
+            "expr": "rate(filebeat_system_load{instance=~\"$instance\",norm=\"5\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "NORM 5 -{{instance}}",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_system_load{instance=~\"$instance\",norm=\"15\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "NORM 15 - {{instance}}",
+            "refId": "C"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "System CPU Load Norm [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 15
+        },
+        "hiddenSeries": false,
+        "id": 2,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_beat_cpu_total_ticks{instance=~\"$instance\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} TICKS",
+            "refId": "B"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "CPU Ticks [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 15
+        },
+        "hiddenSeries": false,
+        "id": 3,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_beat_cpu_user_time_ms[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} CPU USER TME",
+            "refId": "A"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "CPU Time Milliseconds [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "ms",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "collapsed": false,
+        "datasource": null,
+        "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 24
+        },
+        "id": 28,
+        "panels": [],
+        "title": "Filebeat",
+        "type": "row"
+        },
+        {
+        "datasource": null,
+        "gridPos": {
+            "h": 9,
+            "w": 4,
+            "x": 0,
+            "y": 25
+        },
+        "id": 41,
+        "options": {
+            "colorMode": "value",
+            "fieldOptions": {
+            "calcs": [
+                "last"
+            ],
+            "defaults": {
+                "mappings": [],
+                "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                    "color": "green",
+                    "value": null
+                    }
+                ]
+                }
+            },
+            "overrides": [],
+            "values": false
+            },
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto"
+        },
+        "pluginVersion": "6.7.4",
+        "targets": [
+            {
+            "expr": "rate(filebeat_libbeat_config_reloads{instance=~\"$instance\"}[$interval])",
+            "refId": "A"
+            }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Libbeat Config Reloads [$interval]",
+        "type": "stat"
+        },
+        {
+        "aliasColors": {
+            "172.17.0.12:8080 ACTIVE": "rgb(255, 255, 255)",
+            "172.17.0.12:8080 ADDED": "light-green",
+            "172.17.0.12:8080 DONE": "light-blue"
+        },
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 9,
+            "x": 4,
+            "y": 25
+        },
+        "hiddenSeries": false,
+        "id": 8,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_filebeat{instance=~\"$instance\",events=\"active\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} ACTIVE",
+            "refId": "A"
+            },
+            {
+            "expr": "rate(filebeat_filebeat{instance=~\"$instance\",events=\"added\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} ADDED",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_filebeat{instance=~\"$instance\",events=\"done\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} DONE",
+            "refId": "C"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Events [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {
+            "172.17.0.12:8080 HARVESTER OPEN FILES": "light-blue",
+            "172.17.0.12:8080 HARVESTER RUNNING": "light-green",
+            "172.17.0.12:8080 HARVESTER SKIPPED": "red",
+            "172.17.0.12:8080 HARVESTER STARTED": "super-light-blue"
+        },
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 11,
+            "x": 13,
+            "y": 25
+        },
+        "hiddenSeries": false,
+        "id": 9,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_filebeat_harvester_open_files{instance=~\"$instance\"}[$interval])",
+            "format": "time_series",
+            "hide": false,
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} HARVESTER OPEN FILES",
+            "refId": "C"
+            },
+            {
+            "expr": "rate(filebeat_filebeat_harvester_running{instance=~\"$instance\"}[$interval])",
+            "format": "time_series",
+            "hide": false,
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} HARVESTER RUNNING",
+            "refId": "D"
+            },
+            {
+            "expr": "rate(filebeat_filebeat_harvester_skipped{instance=~\"$instance\"}[$interval])",
+            "format": "time_series",
+            "hide": false,
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} HARVESTER SKIPPED",
+            "refId": "E"
+            },
+            {
+            "expr": "rate(filebeat_filebeat_harvester_started{instance=~\"$instance\"}[$interval])",
+            "format": "time_series",
+            "hide": false,
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} HARVESTER STARTED",
+            "refId": "F"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Harvester [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "collapsed": false,
+        "datasource": null,
+        "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 34
+        },
+        "id": 32,
+        "panels": [],
+        "title": "Libbeat",
+        "type": "row"
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "description": "",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 35
+        },
+        "hiddenSeries": false,
+        "id": 10,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_libbeat_output_events[$interval])\n\nfilebeat_libbeat_output{events=\"acked\"} 15731\nfilebeat_libbeat_output{events=\"active\"} 4096\nfilebeat_libbeat_output{events=\"batches\"} 14\nfilebeat_libbeat_output{events=\"dropped\"} 0\nfilebeat_libbeat_output{events=\"duplicates\"} 0\nfilebeat_libbeat_output{events=\"failed\"} 0\nfilebeat_libbeat_output{events=\"toomany\"} 0\nfilebeat_libbeat_output{events=\"total\"} 19827\n",
+            "format": "time_series",
+            "hide": true,
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\",events=\"acked\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} ACKED",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\",events=\"active\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} ACTIVE",
+            "refId": "C"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\",events=\"batches\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} BATCHES",
+            "refId": "D"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\",events=\"dropped\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} DROPPED",
+            "refId": "E"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\",events=\"duplicates\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} DUPLICATES",
+            "refId": "F"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\",events=\"failed\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} FAILED",
+            "refId": "G"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\",events=\"toomany\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} TOO MANY",
+            "refId": "H"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\",events=\"total\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} TOTAL",
+            "refId": "I"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Libbeat Output Events [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {
+            "172.17.0.12:8080 READ ERRORS": "red"
+        },
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 43
+        },
+        "hiddenSeries": false,
+        "id": 16,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+            {
+            "alias": "172.17.0.12:8080 READ ERRORS",
+            "yaxis": 2
+            }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\", read=\"bytes\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} READ BYTES",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\", read=\"errors\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} READ ERRORS",
+            "refId": "C"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Libbeat Output Read Bytes + Errors [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {
+            "172.17.0.12:8080 READ ERRORS": "red",
+            "172.17.0.12:8080 WRITE ERRORS": "red"
+        },
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 43
+        },
+        "hiddenSeries": false,
+        "id": 42,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [
+            {
+            "alias": "172.17.0.12:8080 READ ERRORS",
+            "yaxis": 2
+            },
+            {
+            "alias": "172.17.0.12:8080 WRITE ERRORS",
+            "yaxis": 2
+            }
+        ],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\", write=\"bytes\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} WRITE BYTES",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_output{instance=~\"$instance\", write=\"errors\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} WRITE ERRORS",
+            "refId": "C"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Libbeat Output Write Bytes + Errors [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "bytes",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "datasource": null,
+        "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 52
+        },
+        "id": 43,
+        "options": {
+            "colorMode": "value",
+            "fieldOptions": {
+            "calcs": [
+                "last"
+            ],
+            "defaults": {
+                "mappings": [],
+                "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                    "color": "green",
+                    "value": null
+                    }
+                ]
+                }
+            },
+            "overrides": [],
+            "values": false
+            },
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto"
+        },
+        "pluginVersion": "6.7.4",
+        "targets": [
+            {
+            "expr": "filebeat_libbeat_pipeline_clients{instance=~\"$instance\"}",
+            "refId": "A"
+            }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Libbeat Pipeline Clients",
+        "type": "stat"
+        },
+        {
+        "aliasColors": {
+            "172.17.0.12:8080 DROPPED EVENTS": "super-light-red",
+            "172.17.0.12:8080 FAILED EVENTS": "red",
+            "172.17.0.12:8080 PUBLISHED EVENTS": "green",
+            "172.17.0.12:8080 RETRY EVENTS": "light-orange",
+            "172.17.0.12:8080 TOTAL EVENTS": "dark-blue"
+        },
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 20,
+            "x": 4,
+            "y": 52
+        },
+        "hiddenSeries": false,
+        "id": 11,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_libbeat_pipeline_events[$interval])\n\nfilebeat_libbeat_pipeline_clients 1\n\nfilebeat_libbeat_pipeline{events=\"active\"} 4117\nfilebeat_libbeat_pipeline{events=\"dropped\"} 0\nfilebeat_libbeat_pipeline{events=\"failed\"} 0\nfilebeat_libbeat_pipeline{events=\"filtered\"} 228\nfilebeat_libbeat_pipeline{events=\"published\"} 19847\nfilebeat_libbeat_pipeline{events=\"retry\"} 1493\nfilebeat_libbeat_pipeline{events=\"total\"} 20076\n\nfilebeat_libbeat_pipeline_queue_acked 15731\n\n",
+            "format": "time_series",
+            "hide": true,
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_pipeline{instance=~\"$instance\",events=\"active\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} ACTIVE EVENTS",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_pipeline{instance=~\"$instance\",events=\"dropped\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} DROPPED EVENTS",
+            "refId": "C"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_pipeline{instance=~\"$instance\",events=\"failed\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} FAILED EVENTS",
+            "refId": "D"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_pipeline{instance=~\"$instance\",events=\"filtered\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} FILTERED EVENTS",
+            "refId": "E"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_pipeline{instance=~\"$instance\",events=\"published\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} PUBLISHED EVENTS",
+            "refId": "F"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_pipeline{instance=~\"$instance\",events=\"retry\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} RETRY EVENTS",
+            "refId": "G"
+            },
+            {
+            "expr": "rate(filebeat_libbeat_pipeline{instance=~\"$instance\",events=\"total\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} TOTAL EVENTS",
+            "refId": "H"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Libbeat Pipeline Events [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "datasource": null,
+        "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 0,
+            "y": 56
+        },
+        "id": 44,
+        "options": {
+            "colorMode": "value",
+            "fieldOptions": {
+            "calcs": [
+                "last"
+            ],
+            "defaults": {
+                "mappings": [],
+                "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                    "color": "green",
+                    "value": null
+                    }
+                ]
+                }
+            },
+            "overrides": [],
+            "values": false
+            },
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto"
+        },
+        "pluginVersion": "6.7.4",
+        "targets": [
+            {
+            "expr": "rate(filebeat_libbeat_pipeline_queue_acked{instance=~\"$instance\"}[$interval])",
+            "refId": "A"
+            }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Libbeat Pipeline Queue ACKED [$interval]",
+        "type": "stat"
+        },
+        {
+        "collapsed": false,
+        "datasource": null,
+        "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 61
+        },
+        "id": 34,
+        "panels": [],
+        "title": "Memstats",
+        "type": "row"
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 62
+        },
+        "hiddenSeries": false,
+        "id": 18,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_beat{instance=~\"$instance\",memstats=\"gc_next\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Memstats GC Next [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 62
+        },
+        "hiddenSeries": false,
+        "id": 23,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_beat{instance=~\"$instance\",memstats=\"memory_alloc\"}[$interval])",
+            "format": "time_series",
+            "hide": false,
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Memstats Memory Alloc [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 71
+        },
+        "hiddenSeries": false,
+        "id": 22,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_beat{instance=~\"$instance\",memstats=\"memory_total\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Memstats Memory Total [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 71
+        },
+        "hiddenSeries": false,
+        "id": 21,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_beat{instance=~\"$instance\",memstats=\"rss\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Memstats RSS [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "collapsed": false,
+        "datasource": null,
+        "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 80
+        },
+        "id": 36,
+        "panels": [],
+        "title": "Registrar",
+        "type": "row"
+        },
+        {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 81
+        },
+        "hiddenSeries": false,
+        "id": 20,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_registrar{instance=~\"$instance\",states=\"cleanup\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} CLEANUP",
+            "refId": "A"
+            },
+            {
+            "expr": "rate(filebeat_registrar{instance=~\"$instance\",states=\"current\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} CURRENT",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_registrar{instance=~\"$instance\",states=\"update\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} UPDATE",
+            "refId": "C"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Registrar Stats [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        },
+        {
+        "aliasColors": {
+            "172.17.0.12:8080 FAIL": "red",
+            "172.17.0.12:8080 SUCCESS": "green"
+        },
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "c-monitoring-prometheus",
+        "fill": 1,
+        "fillGradient": 0,
+        "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 81
+        },
+        "hiddenSeries": false,
+        "id": 19,
+        "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {
+            "dataLinks": []
+        },
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+            {
+            "expr": "rate(filebeat_registrar{instance=~\"$instance\",writes=\"fail\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} FAIL",
+            "refId": "A"
+            },
+            {
+            "expr": "rate(filebeat_registrar{instance=~\"$instance\",writes=\"success\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} SUCCESS",
+            "refId": "B"
+            },
+            {
+            "expr": "rate(filebeat_registrar{instance=~\"$instance\",writes=\"total\"}[$interval])",
+            "format": "time_series",
+            "instant": false,
+            "intervalFactor": 2,
+            "legendFormat": "{{instance}} TOTAL",
+            "refId": "C"
+            }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Registrar Writes [$interval]",
+        "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+        },
+        "yaxes": [
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            },
+            {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+            }
+        ],
+        "yaxis": {
+            "align": false,
+            "alignLevel": null
+        }
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 22,
+    "style": "dark",
+    "tags": [
+        "ACOC",
+        "filebeat",
+        "elasticsearch"
+    ],
+    "templating": {
+        "list": [
+        {
+            "auto": true,
+            "auto_count": 30,
+            "auto_min": "10s",
+            "current": {
+            "selected": false,
+            "text": "30m",
+            "value": "30m"
+            },
+            "hide": 0,
+            "label": null,
+            "name": "interval",
+            "options": [
+            {
+                "selected": false,
+                "text": "auto",
+                "value": "$__auto_interval_interval"
+            },
+            {
+                "selected": false,
+                "text": "1m",
+                "value": "1m"
+            },
+            {
+                "selected": false,
+                "text": "10m",
+                "value": "10m"
+            },
+            {
+                "selected": true,
+                "text": "30m",
+                "value": "30m"
+            },
+            {
+                "selected": false,
+                "text": "1h",
+                "value": "1h"
+            },
+            {
+                "selected": false,
+                "text": "6h",
+                "value": "6h"
+            },
+            {
+                "selected": false,
+                "text": "12h",
+                "value": "12h"
+            },
+            {
+                "selected": false,
+                "text": "1d",
+                "value": "1d"
+            },
+            {
+                "selected": false,
+                "text": "7d",
+                "value": "7d"
+            },
+            {
+                "selected": false,
+                "text": "14d",
+                "value": "14d"
+            },
+            {
+                "selected": false,
+                "text": "30d",
+                "value": "30d"
+            }
+            ],
+            "query": "1m,10m,30m,1h,6h,12h,1d,7d,14d,30d",
+            "refresh": 2,
+            "skipUrlSync": false,
+            "type": "interval"
+        },
+        {
+            "allValue": null,
+            "current": {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+            },
+            "datasource": "c-monitoring-prometheus",
+            "definition": "label_values(filebeat_info,instance)",
+            "hide": 0,
+            "includeAll": true,
+            "index": -1,
+            "label": "instance",
+            "multi": true,
+            "name": "instance",
+            "options": [],
+            "query": "label_values(filebeat_info,instance)",
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "tagValuesQuery": "",
+            "tags": [],
+            "tagsQuery": "",
+            "type": "query",
+            "useTags": false
+        },
+        {
+            "allValue": null,
+            "current": {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+            },
+            "datasource": "c-monitoring-prometheus",
+            "definition": "label_values(filebeat_info,namespace)",
+            "hide": 0,
+            "includeAll": true,
+            "index": -1,
+            "label": "namespace",
+            "multi": true,
+            "name": "namespace",
+            "options": [],
+            "query": "label_values(filebeat_info,namespace)",
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "tagValuesQuery": "",
+            "tags": [],
+            "tagsQuery": "",
+            "type": "query",
+            "useTags": false
+        },
+        {
+            "allValue": null,
+            "current": {
+            "selected": true,
+            "text": "8.8.2",
+            "value": "8.8.2"
+            },
+            "datasource": "c-monitoring-prometheus",
+            "definition": "label_values(filebeat_info, version)",
+            "hide": 2,
+            "includeAll": false,
+            "index": -1,
+            "label": null,
+            "multi": false,
+            "name": "version",
+            "options": [
+            {
+                "selected": true,
+                "text": "8.8.2",
+                "value": "8.8.2"
+            }
+            ],
+            "query": "label_values(filebeat_info, version)",
+            "refresh": 0,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "tagValuesQuery": "",
+            "tags": [],
+            "tagsQuery": "",
+            "type": "query",
+            "useTags": false
+        },
+        {
+            "allValue": null,
+            "current": {
+            "selected": true,
+            "text": "c-logging-filebeat-c68rj",
+            "value": "c-logging-filebeat-c68rj"
+            },
+            "datasource": "c-monitoring-prometheus",
+            "definition": "label_values(filebeat_beat_info_uptime_ms, pod)",
+            "hide": 2,
+            "includeAll": false,
+            "index": -1,
+            "label": null,
+            "multi": false,
+            "name": "podname",
+            "options": [
+            {
+                "selected": true,
+                "text": "c-logging-filebeat-c68rj",
+                "value": "c-logging-filebeat-c68rj"
+            }
+            ],
+            "query": "label_values(filebeat_beat_info_uptime_ms, pod)",
+            "refresh": 0,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "tagValuesQuery": "",
+            "tags": [],
+            "tagsQuery": "",
+            "type": "query",
+            "useTags": false
+        }
+        ]
+    },
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+        ],
+        "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+        ]
+    },
+    "timezone": "",
+    "title": "ACOC  - Filebeat",
+    "uid": "fqsGRfHWk",
+    "variables": {
+        "list": []
+    },
+    "version": 1
+    }

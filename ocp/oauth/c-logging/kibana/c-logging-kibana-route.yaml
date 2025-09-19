@@ -1,0 +1,20 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: c-logging-kibana-route
+  namespace: c-logging
+spec:
+  host: >-
+    {{ kibanaHost }}
+  path: /
+  to:
+    kind: Service
+    name: c-logging-kibana
+    weight: 100
+  port:
+    targetPort: proxy
+  tls:
+    termination: Reencrypt
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

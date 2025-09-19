@@ -1,0 +1,26 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: c-logging-es-servicemonitor
+  namespace: c-logging
+  labels:
+    app: c-logging-elasticsearch
+spec:
+  selector:
+    matchLabels:
+      k8s-app: "c-logging-elasticsearch-exporter"
+  namespaceSelector:
+    matchNames:
+      - "c-logging"
+  endpoints:
+  - port: http
+    path: "/metrics"
+    relabelings:
+      - action: replace
+        regex: ^(.*)$
+        replacement: $1
+        separator: ;
+        sourceLabels:
+        - __meta_kubernetes_pod_node_name
+        targetLabel: nodename

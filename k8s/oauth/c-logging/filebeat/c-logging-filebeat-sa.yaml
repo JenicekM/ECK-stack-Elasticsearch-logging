@@ -1,0 +1,14 @@
+---
+# Source: filebeat/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: c-logging-filebeat
+  namespace: c-logging
+  labels:
+    app.kubernetes.io/name: filebeat
+    helm.sh/chart: filebeat-4.0.0
+    app.kubernetes.io/instance: c-logging-filebeat
+    app.kubernetes.io/managed-by: Helm
+imagePullSecrets:
+  - name: {{ cCatalogBaseimagePullSecret }}

@@ -1,0 +1,28 @@
+---
+# Source: logstash/templates/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: c-logging-logstash
+  namespace:  c-logging
+  labels:
+    chart: logstash-2.4.0
+    app: logstash
+    release: "c-logging-logstash"
+    heritage: "Helm"
+spec:
+  endpoints:
+  - interval: 10s
+    scrapeTimeout: 10s
+    honorLabels: true
+    targetPort: 9198
+    path: /metrics
+    scheme: http
+  jobLabel: "c-logging-logstash"
+  selector:
+    matchLabels:
+      app: logstash
+      release: "c-logging-logstash"
+  namespaceSelector:
+    matchNames:
+      - c-logging

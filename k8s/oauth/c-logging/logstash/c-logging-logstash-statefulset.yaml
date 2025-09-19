@@ -1,0 +1,219 @@
+---
+# Source: logstash/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: c-logging-logstash
+  namespace: c-logging
+  labels:
+    app: logstash
+    chart: logstash-2.4.0
+    release: c-logging-logstash
+    heritage: Helm
+    k8s-app: c-logging-logstash
+    app.kubernetes.io/managed-by: iscp
+    app.kubernetes.io/app-name: c-logging
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: commontools
+    app.kubernetes.io/component: logstash
+    app.kubernetes.io/version: 8.17.0
+    # # Labels for d-inventory, uncomment if necessary
+    # app.iscp/name: c-logging
+spec:
+  serviceName: c-logging-logstash
+  replicas: 1
+  podManagementPolicy: OrderedReady
+  selector:
+    matchLabels:
+      app: logstash
+      release: c-logging-logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+        release: c-logging-logstash
+      annotations:
+        checksum/patterns: 73810d156f75eedb4aef5ee6a4a228cf450eefa8899a146379660113b144c933
+        checksum/templates: bd339df660b1f3001f422622a3d3714a694db7338327d450b56b34d7b26e061c
+        checksum/pipeline: ef375c545d2393f199d687b665b99ec40727e82e85011f45a49a2bcd33b07115
+    spec:
+      securityContext:    
+        runAsUser: 1000    
+        runAsGroup: 1000
+        fsGroup: 1000
+      # initContainers:
+      # - command:
+      #   - sh
+      #   - -c
+      #   - |
+      #     set -e;
+      #     set -x;
+      #     chown 1000:1000 /usr/share/logstash/data;
+      #     for datadir in $(find /usr/share/logstash/data/ -mindepth 1 -maxdepth 1 -not -name ".snapshot"); do
+      #       chown -R 1000:1000 $datadir;
+      #     done
+      #   image: "{{ imageInstanceLocation }}/{{ busyboxImageName }}:{{ busyboxImageTag }}"
+      #   imagePullPolicy: IfNotPresent
+      #   name: chown
+      #   securityContext:
+      #     privileged: true
+      #     runAsUser: 0
+      #   volumeMounts:
+      #     - mountPath: /usr/share/logstash/data
+      #       name: data
+      containers:
+        ## logstash
+        - name: logstash
+          image: "{{ imageInstanceLocation }}/{{ logstashImageName }}:{{ logstashImageTag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: monitor
+              containerPort: 9600
+              protocol: TCP
+            - containerPort: 5044
+              name: beats
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: monitor
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: monitor
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 30
+          env:
+            ## Logstash monitoring API host and port env vars
+            - name: HTTP_HOST
+              value: "0.0.0.0"
+            - name: HTTP_PORT
+              value: "9600"
+            ## Elasticsearch output
+            - name: ELASTICSEARCH_HOST
+              value: "c-logging-elasticsearch-es-http.c-logging.svc"
+            - name: ELASTICSEARCH_PORT
+              value: "9200"
+            # Logstash Java Options
+            - name: LS_JAVA_OPTS
+              value: "-Xmx1g -Xms1g -Dlog4j2.formatMsgNoLookups=true"
+            ## Additional env vars
+            - name: CONFIG_RELOAD_AUTOMATIC
+              value: "true"
+            - name: PATH_CONFIG
+              value: "/usr/share/logstash/pipeline"
+            - name: PATH_DATA
+              value: "/usr/share/logstash/data/${POD_NAME}"
+            - name: QUEUE_CHECKPOINT_WRITES
+              value: "1024"
+            - name: QUEUE_DRAIN
+              value: "true"
+            - name: QUEUE_MAX_BYTES
+              value: "1gb"
+            - name: QUEUE_TYPE
+              value: "persisted"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: XPACK_MONITORING_ENABLED
+              value: "false"
+            - name: XPACK_MANAGEMENT_ENABLED
+              value: "false"
+            - name: ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: elastic
+                  name: c-logging-elasticsearch-es-elastic-user
+          resources:
+            limits:
+              cpu: {{ logstashResourcesCPULimit }}
+              memory: {{ logstashResourcesMemoryLimit }}
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          volumeMounts:
+            - mountPath: /usr/share/logstash/data
+              name: data
+            - mountPath: /usr/share/logstash/patterns
+              name: patterns
+            # - mountPath: /usr/share/logstash/files
+            #   name: files
+            - mountPath: /usr/share/logstash/pipeline
+              name: pipeline
+            - mountPath: /usr/share/logstash/ca.crt
+              name: ca-crt
+              subPath: ca.crt
+        ## logstash-exporter
+        - name: logstash-exporter
+          image: "{{ imageInstanceLocation }}/{{ logstashExporterImageName }}:{{ logstashExporterImageTag }}"
+          imagePullPolicy: IfNotPresent
+          # command: ["/bin/sh", "-c"]
+          # ## Delay start of logstash-exporter to give logstash more time to come online.
+          # args:
+          #   - >-
+          #     sleep 60;
+          #     exec logstash_exporter
+          #       --logstash.endpoint=http://localhost:9600
+          #       --web.listen-address=:9198
+          ports:
+            - name: ls-exporter
+              containerPort: 9198
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 8
+            httpGet:
+              path: /metrics
+              port: ls-exporter
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 60
+          readinessProbe:
+            failureThreshold: 8
+            httpGet:
+              path: /metrics
+              port: ls-exporter
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 60
+          resources:
+            limits:
+              cpu: {{ logstashExporterResourcesCPULimit }}
+              memory: {{ logstashExporterResourcesMemoryLimit }}
+            requests:
+              cpu: 50m
+              memory: 64Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                release: c-logging-logstash
+            topologyKey: kubernetes.io/hostname
+      serviceAccountName: c-logging-logstash
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: patterns
+          configMap:
+            name: c-logging-logstash-patterns
+        # - name: files
+        #   configMap:
+        #     name: c-logging-logstash-files
+        - name: pipeline
+          configMap:
+            name: c-logging-logstash-pipeline
+        - name: ca-crt
+          secret:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            secretName: c-logging-elasticsearch-es-http-certs-public
+        - name: data
+          persistentVolumeClaim:
+            claimName: c-logging-logstash

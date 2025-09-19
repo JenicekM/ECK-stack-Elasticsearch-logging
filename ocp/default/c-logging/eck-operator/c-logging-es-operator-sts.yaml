@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: c-logging-operator
+  namespace: c-logging
+  labels:
+    control-plane: c-logging-operator
+    k8s-app: c-logging-operator
+    app.kubernetes.io/managed-by: iscp 
+    app.kubernetes.io/app-name: "application_logging" 
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: ACOC
+    app.kubernetes.io/component: elasticsearch-operator 
+    app.kubernetes.io/version: 2.16.1
+    # Labels for d-inventory, uncomment if necessary
+    app.iscp/name: c-logging
+spec:
+  selector:
+    matchLabels:
+      control-plane: c-logging-operator
+  serviceName: c-logging-operator
+  template:
+    metadata:
+      labels:
+        control-plane: c-logging-operator
+    spec:
+      serviceAccountName: c-logging-operator
+      containers:
+      - image: "{{ imageInstanceLocation }}/{{ eckOperatorImageName }}:{{ eckOperatorImageTag }}" 
+        name: manager
+        args:
+          - "manager"
+          - "--log-verbosity=0"
+          - "--metrics-port=0"
+          - "--container-registry=docker.elastic.co"
+          - "--max-concurrent-reconciles=3"
+          - "--ca-cert-validity=8760h"
+          - "--ca-cert-rotate-before=24h"
+          - "--cert-validity=8760h"
+          - "--cert-rotate-before=24h"
+          - "--operator-namespace"
+          - "c-logging"
+          - "--namespaces"
+          - "c-logging"
+#          - "--enable-webhook"
+        env:
+          - name: OPERATOR_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          #- name: WEBHOOK_SECRET
+          #  value: c-logging-webhook-server-cert
+          #- name: WEBHOOK_PODS_LABEL
+          #  value: c-logging-operator
+          - name: OPERATOR_IMAGE
+            value: "{{ imageInstanceLocation }}/{{ eckOperatorImageName }}:{{ eckOperatorImageTag }}"
+        resources:
+          limits:
+            cpu: 1
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 150Mi
+      #  ports:
+      #  - containerPort: 9443
+      #    name: webhook-server
+      #    protocol: TCP
+      #  volumeMounts:
+      #    - mountPath: /tmp/k8s-webhook-server/serving-certs
+      #      name: cert
+      #      readOnly: true
+      terminationGracePeriodSeconds: 10
+      #volumes:
+      #  - name: cert
+      #    secret:
+      #      defaultMode: 420
+      #      secretName: c-logging-webhook-server-cert

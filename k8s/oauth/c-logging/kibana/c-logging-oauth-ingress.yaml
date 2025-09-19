@@ -1,0 +1,29 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: c-logging-kibana-oauth
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-kibana-oauth
+  annotations:
+    kubernetes.io/ingress.class: "d-ingress"
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: "subrequest_output_buffer_size 8k;"
+spec:
+  rules:
+    - host: "{{ kibanaHost }}"
+      http:
+        paths:
+        - path: /
+          backend:
+            service:
+              name: c-logging-kibana-oauth
+              port:
+                name: oauth2-https
+          pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - "{{ kibanaHost }}"
+    secretName: oauth-cert

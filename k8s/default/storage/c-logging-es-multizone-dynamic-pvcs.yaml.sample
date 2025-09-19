@@ -1,0 +1,57 @@
+# Example: dynamic provisioning on Multizone clusters on IKS:
+# NOTE: all templated varibles will be filled by the CICD tool
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: elasticsearch-data-c-logging-elasticsearch-es-node-0-0
+ namespace: c-logging
+ labels:
+  k8s-app: c-logging-elasticsearch
+  region: "{{ region }}"
+  zone: "{{ zone1 }}"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: "{{ elasticsearchStorageClass }}"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: elasticsearch-data-c-logging-elasticsearch-es-node-1-0
+ namespace: c-logging
+ labels:
+  k8s-app: c-logging-elasticsearch
+  region: "{{ region }}"
+  zone: "{{ zone2 }}"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: "{{ elasticsearchStorageClass }}"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: elasticsearch-data-c-logging-elasticsearch-es-node-2-0
+ namespace: c-logging
+ labels:
+  k8s-app: c-logging-elasticsearch
+  region: "{{ region }}"
+  zone: "{{ zone3 }}"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: "{{ elasticsearchStorageClass }}"

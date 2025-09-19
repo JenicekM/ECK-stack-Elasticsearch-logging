@@ -1,0 +1,93 @@
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: c-logging-kibana
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-kibana
+    app.kubernetes.io/managed-by: iscp
+    app.kubernetes.io/app-name: application_logging
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: application
+    app.kubernetes.io/component: kibana
+    app.kubernetes.io/version: 8.17.0
+spec:
+  image: "{{ imageInstanceLocation }}/{{ kibanaImageName }}:{{ kibanaImageTag }}"
+  version: 8.17.0
+  count: 1
+  elasticsearchRef:
+    name: c-logging-elasticsearch
+  config:
+    elasticsearch.requestTimeout: 90000
+    xpack.security.showInsecureClusterWarning: false
+  http:
+    service:
+      spec:
+        type: ClusterIP    
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  podTemplate:
+    metadata:
+      name: c-logging-kibana
+    spec:
+      serviceAccountName: c-logging-kibana-oauth
+      containers:
+      - name: kibana
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: 0.5
+          limits:
+            memory: {{ kibanaResourcesMemoryLimit }}
+            cpu: {{ kibanaResourcesCPULimit }}
+      - name: oauth2-proxy
+        image: "{{ proxyImageInstanceLocation }}/{{ oauthProxyImageName }}:{{ oauthProxyImageTag }}"
+        args:
+          - --https-address=0.0.0.0:{{ ProxySecurePort }}
+          - --tls-cert-file=/etc/oauth/ssl/tls.crt
+          - --tls-key-file=/etc/oauth/ssl/tls.key
+          - --config=/etc/oauth2_proxy/oauth2_proxy.cfg
+          - --cookie-domain="{{ cookieDomain }}"
+          - --upstream={{ upstreamUri }}
+          - --provider-ca-file=/etc/ssl/certs/x-ca.crt
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+        ports:
+        - containerPort: {{ ProxySecurePort }}
+          name: oauth2-https
+          protocol: TCP
+        volumeMounts:
+        - name: tls
+          mountPath: /etc/oauth/ssl
+          readOnly: true
+        - mountPath: /etc/oauth2_proxy
+          name: configmain
+        - name: x-ca-cert
+          mountPath: "/etc/ssl/certs/x-ca.crt"
+          subPath: x-ca.crt
+          readOnly: true
+      volumes:
+      - name: tls
+        secret:
+          secretName: oauth-cert
+      - secret:
+          defaultMode: 420
+          items:
+          - key: oauth2_proxy.cfg
+            path: oauth2_proxy.cfg
+          secretName: oauth2-proxy-cfg-kibana
+        name: configmain
+      - name: x-ca-cert
+        secret:
+          secretName: x-ca-cert
+          items:
+          - key: tls.crt
+            path: x-ca.crt

@@ -1,0 +1,31 @@
+---
+# Source: logstash/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: c-logging-logstash
+  namespace: c-logging
+  labels:
+    app: logstash
+    chart: logstash-2.4.0
+    release: c-logging-logstash
+    heritage: Helm
+  annotations:
+spec:
+  type: ClusterIP
+  ports:
+    - name: beats
+      port: 5044
+      protocol: TCP
+      targetPort: beats
+    - name: monitor
+      port: 9600
+      protocol: TCP
+      targetPort: monitor
+    - name: ls-exporter
+      port: 9198
+      protocol: TCP
+      targetPort: monitor
+  selector:
+    app: logstash
+    release: c-logging-logstash

@@ -1,0 +1,25 @@
+---
+# Source: https://github.com/sepich/beats-exporter#kubernetes-example
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: c-logging-filebeat-queue-alert
+  namespace: c-logging
+  labels:
+    app.kubernetes.io/name: filebeat
+    app.kubernetes.io/instance: c-logging-filebeat
+    k8s-app: c-logging-filebeat
+spec:
+  groups:
+  - name: Filebeat Alerts
+    rules:
+    - alert: FileBeatQueue
+      expr: filebeat_libbeat_pipeline{events="active",namespace="c-logging"} >300 and delta(filebeat_libbeat_pipeline{events="active",namespace="c-logging"}[15m]) >0
+      for: 15m
+      labels:
+        severity: warning
+        monitored_by_iscp: "true"
+        instance: '{{$labels.kubernetes_pod_node_name}}'
+      annotations:
+        description: Filebeat queue is {{printf "%.0f" $value}} and growing

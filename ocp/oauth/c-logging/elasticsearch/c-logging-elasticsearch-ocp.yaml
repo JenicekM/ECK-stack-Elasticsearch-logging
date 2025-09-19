@@ -1,0 +1,161 @@
+# This config sets up an Elasticsearch cluster with 3 nodes in NO multizone environment.
+#
+
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: c-logging-elasticsearch
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+    app.kubernetes.io/managed-by: iscp
+    app.kubernetes.io/app-name: application_logging
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: application
+    app.kubernetes.io/component: elasticsearch
+    app.kubernetes.io/version: 8.17.0
+spec:
+  version: 8.17.0
+  image: "{{ imageInstanceLocation }}/{{ elasticImageName }}:{{ elasticImageTag }}"
+  # #
+  # # Uncomment this (secureSettings section) if s3 backup is needed
+  # # 
+  # secureSettings:
+  # - secretName: c-logging-elasticsearch-s3-credentials
+
+  nodeSets:
+  - name: node
+    count: {{ elasticsearchNodes }}
+    config:
+      node.roles: ["master","data","ingest"]
+      # node.master: true # We change the form (line 32)
+      # node.data: true
+      # node.ingest: true
+      # node.ml: false # We have commented this for fails in elastic container 
+      # Setting to 'false' allows ES to run on nodes even if their 'vm.max_map_count'
+      # has not been increased, at a performance cost
+      node.store.allow_mmap: false
+      # by default - true - if we change to false, we disable the built in of logs-*, metrics-*, synthetics-*
+      stack.templates.enabled: false 
+      # To enable oauth
+      xpack.security.enabled: false
+      # #
+      # # Uncomment the path.repo var in case we are going to use PV snapshots
+      # # instead of the s3
+      # # 
+      # path.repo: ["/usr/share/elasticsearch/backup"]
+    podTemplate:
+      metadata:
+        name: c-logging-elasticsearch
+        labels:
+          k8s-app: c-logging-elasticsearch
+      spec:
+        securityContext:    
+          runAsUser: 1000    
+          runAsGroup: 1000
+          fsGroup: 1000
+        serviceAccount: c-logging-elasticsearch
+        # This changes the 'kernel setting' on the node to allow ES to use mmap
+        # if you uncomment this init container you will likely also want to remove the
+        # "node.store.allow_mmap: false" setting above
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        
+        # Uncomment below 'initContainers' block
+        # in case Elastic "backup_repo" is defined as required
+        # # Uncomment the chown-backup job in case we are going to use PV snapshots
+        # # instead of the s3
+        # 
+        # - name: chown-backup
+        #   securityContext:
+        #     runAsUser: 0
+        #     privileged: true
+        #   command:
+        #   - sh
+        #   - -c
+        #   - |
+        #     set -e;
+        #     set -x;
+        #     chmod -R 755 /usr/share/elasticsearch/backup;
+        #     for datadir in $(find /usr/share/elasticsearch/backup -mindepth 1 -maxdepth 1 -not -name ".snapshot"); do
+        #       chmod -R 755 $datadir;
+        #     done
+        # # If we found problems related with node.lock
+        # - name: chown-data
+        #   securityContext:
+        #     runAsUser: 0
+        #     privileged: true
+        #   command:
+        #   - sh
+        #   - -c
+        #   - |
+        #     set -e;
+        #     set -x;
+        #     chown -R 1000:1000 /usr/share/elasticsearch/data;
+           
+        containers:
+        - name: elasticsearch
+          # Uncomment this (imagePullPolicy) if you need to download the image 'Always'. By default the pull policy of all containers is set to 'IfNotPresent'
+          # imagePullPolicy: Always
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms4g -Xmx4g -Dlog4j2.formatMsgNoLookups=true"
+          resources:
+            requests:
+              memory: {{ elasticsearchResourcesMemoryRequests }}
+              cpu: {{ elasticsearchResourcesCPURequests }}
+            limits:
+              memory: {{ elasticsearchResourcesMemoryLimit }}
+              cpu: {{ elasticsearchResourcesCPULimit }}
+
+          securityContext: 
+            capabilities:
+              add: ["SYS_CHROOT"]
+        # #
+        # # Uncomment the elasticsearch-backup related volume and mounts in case
+        # # we are going to use PV snapshots instead of the s3
+        #   volumeMounts:
+        #     - name: elasticsearch-backup
+        #       mountPath: /usr/share/elasticsearch/backup
+        # volumes:
+        # - name: elasticsearch-backup
+        #   persistentVolumeClaim:
+        #     claimName: elasticsearch-data-c-logging-elasticsearch-backup
+  http:
+    service:
+      spec:
+        type: ClusterIP
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  # ------------------------------------------------------------ #
+  # # inject secure settings into Elasticsearch nodes from k8s secrets references
+  # secureSettings:
+  # - secretName: ref-to-secret
+  # - secretName: another-ref-to-secret
+  #   # expose only a subset of the secret keys (optional)
+  #   entries:
+  #   - key: value1
+  #     path: newkey # project a key to a specific path (optional)
+  # ------------------------------------------------------------ #
+  # http:
+  #   service:
+  #     spec:
+  #       # expose this cluster Service with a LoadBalancer
+  #       type: LoadBalancer
+  #   tls:
+  #     selfSignedCertificate:
+  #       # add a list of SANs into the self-signed HTTP certificate
+  #       subjectAltNames:
+  #       - ip: 192.168.1.2
+  #       - ip: 192.168.1.3
+  #       - dns: elasticsearch-sample.example.com
+  #     certificate:
+  #       # provide your own certificate
+  #       secretName: my-cert
+  # ------------------------------------------------------------ #

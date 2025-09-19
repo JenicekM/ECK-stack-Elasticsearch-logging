@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: c-logging-operator
+  namespace: c-logging
+imagePullSecrets:
+  - name: {{ cCatalogBaseimagePullSecret }}

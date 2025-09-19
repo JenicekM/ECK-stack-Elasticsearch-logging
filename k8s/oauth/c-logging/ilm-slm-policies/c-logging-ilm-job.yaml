@@ -1,0 +1,81 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: c-logging-ilm
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-ilm
+    app.kubernetes.io/managed-by: iscp
+    app.kubernetes.io/app-name: application_logging
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: application
+    app.kubernetes.io/component: elasticsearch
+    app.kubernetes.io/version: 8.17.0
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: c-logging-elasticsearch
+    spec:
+      securityContext:
+        runAsUser: 1000
+      serviceAccount: c-logging-ilm-slm
+      containers:
+      - name: c-logging-ilm
+        image: "{{ imageInstanceLocation }}/{{ elasticImageName }}:{{ elasticImageTag }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/bash
+        args:
+        - -c
+        - |
+          
+          while ! curl -X GET "$ELASTICSEARCH_PROTOCOL://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/_cluster/health?wait_for_status=green&timeout=10s&pretty" \
+                       -s -o /dev/null -k -u "elastic:$ELASTICSEARCH_PASSWORD"; do
+            sleep 30
+          done
+          rc=""
+          echo "Connection to ECK"
+          while [ "$rc" != "200" ]; do
+              rc=`curl -X PUT "$ELASTICSEARCH_PROTOCOL://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/_ilm/policy/iscp-policy" \
+                   -k -u "elastic:$ELASTICSEARCH_PASSWORD" \
+                   -H'Content-Type: application/json' \
+                   -d '{"policy": {"phases": {"hot": { "actions": { "set_priority": { "priority": 100 }}},"delete": { "min_age": "7d", "actions": { "delete": {}}}}}}' \
+                   -s -o /dev/null -w %{http_code}`
+              sleep 10
+          done
+          echo "Created iscp-policy"
+          rc2=""
+          while [ "$rc2" != "200" ]; do
+              rc2=`curl -X PUT "$ELASTICSEARCH_PROTOCOL://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/_template/iscp-delete-index" \
+                   -k -u "elastic:$ELASTICSEARCH_PASSWORD" \
+                   -H'Content-Type: application/json' \
+                   -d '{"index_patterns": ["*"],"settings": {"format": "1","lifecycle": {"name": "iscp-policy"}},"mappings": {"_source": {},"_meta": {},"properties": {}}}' \
+                   -s -o /dev/null -w %{http_code}`
+              sleep 10
+          done
+          echo "Created iscp-delete-index"
+        env:
+        - name: ELASTICSEARCH_PROTOCOL
+          value: "http"
+        - name: ELASTICSEARCH_HOST
+          value: "c-logging-elasticsearch-es-http.c-logging"
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: elastic
+              name: c-logging-elasticsearch-es-elastic-user
+        resources:
+          limits:
+            cpu: 400m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 56Mi
+      restartPolicy: OnFailure

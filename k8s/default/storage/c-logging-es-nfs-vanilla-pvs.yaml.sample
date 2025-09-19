@@ -1,0 +1,176 @@
+---
+#
+# For OnPrem clusters with static NFS environments
+# NOTE: all templated varibles will be filled by the CICD tool
+#
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  finalizers:
+  - kubernetes.io/pv-protection
+  name: c-logging-elasticsearch-0
+  labels:
+    k8s-app: c-logging-elasticsearch
+spec:
+  capacity:
+    storage: {{ elasticsearchStorageSize }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: elasticsearch-data-c-logging-elasticsearch-es-node-0
+    namespace: c-logging
+  storageClassName: ""
+  mountOptions:
+   - nordirplus
+   - hard
+   - nolock
+   - local_lock=all
+   - nfsvers=3
+   - mountvers=3
+   - proto=tcp
+   - mountproto=udp
+   - noatime
+   - nodiratime
+  nfs:
+    server: "{{ nfsServer }}"
+    path: "{{ nfsShare }}/docker-volumes/{{ blockId }}/{{ k8sClusterId }}/c-logging/c-logging-elasticsearch/data-0"
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  finalizers:
+  - kubernetes.io/pv-protection
+  name: c-logging-elasticsearch-1
+  labels:
+    k8s-app: c-logging-elasticsearch
+spec:
+  capacity:
+    storage: {{ elasticsearchStorageSize }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: elasticsearch-data-c-logging-elasticsearch-es-node-1
+    namespace: c-logging
+  storageClassName: ""
+  mountOptions:
+   - nordirplus
+   - hard
+   - nolock
+   - local_lock=all
+   - nfsvers=3
+   - mountvers=3
+   - proto=tcp
+   - mountproto=udp
+   - noatime
+   - nodiratime
+  nfs:
+    server: "{{ nfsServer }}"
+    path: "{{ nfsShare }}/docker-volumes/{{ blockId }}/{{ k8sClusterId }}/c-logging/c-logging-elasticsearch/data-1"
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  finalizers:
+  - kubernetes.io/pv-protection
+  name: c-logging-elasticsearch-2
+  labels:
+    k8s-app: c-logging-elasticsearch
+spec:
+  capacity:
+    storage: {{ elasticsearchStorageSize }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: elasticsearch-data-c-logging-elasticsearch-es-node-2
+    namespace: c-logging
+  storageClassName: ""
+  mountOptions:
+   - nordirplus
+   - hard
+   - nolock
+   - local_lock=all
+   - nfsvers=3
+   - mountvers=3
+   - proto=tcp
+   - mountproto=udp
+   - noatime
+   - nodiratime
+  nfs:
+    server: "{{ nfsServer }}"
+    path: "{{ nfsShare }}/docker-volumes/{{ blockId }}/{{ k8sClusterId }}/c-logging/c-logging-elasticsearch/data-2"
+
+---
+#
+# Definitions for static PVCs provision in vanilla clusters
+#
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-data-c-logging-elasticsearch-es-node-0
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: ""
+  volumeName: c-logging-elasticsearch-0
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-data-c-logging-elasticsearch-es-node-1
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: ""
+  volumeName: c-logging-elasticsearch-1
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-data-c-logging-elasticsearch-es-node-2
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: ""
+  volumeName: c-logging-elasticsearch-2

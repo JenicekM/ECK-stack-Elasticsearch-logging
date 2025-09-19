@@ -1,0 +1,18 @@
+---
+# Source: https://github.com/sepich/beats-exporter#kubernetes-example
+
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: c-logging-filebeat-podmonitor
+  namespace: c-logging
+  labels:
+    app.kubernetes.io/name: filebeat
+    app.kubernetes.io/instance: c-logging-filebeat
+spec:
+  selector:
+    matchLabels:
+      beat.k8s.elastic.co/name: c-logging-filebeat
+      common.k8s.elastic.co/type: beat
+  podMetricsEndpoints:
+  - port: metrics

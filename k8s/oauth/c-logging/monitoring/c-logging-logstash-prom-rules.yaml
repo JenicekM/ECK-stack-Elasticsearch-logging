@@ -1,0 +1,23 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: c-logging-logstash-alerts
+  namespace: c-logging
+  labels:
+    app.kubernetes.io/name: logstash
+    app.kubernetes.io/instance: c-logging-logstash
+    k8s-app: c-logging-logstash
+spec:
+  groups:
+  - name: LogStash Alerts
+    rules:
+    - alert: LogstashQueue
+      expr: (logstash_stats_pipeline_queue_events_queue_size{service="c-logging-logstash",namespace="c-logging"} / logstash_stats_pipeline_queue_max_size_in_bytes{service="c-logging-logstash",namespace="c-logging"}) * 100  > 75
+      for: 15m
+      labels:
+        severity: warning
+        instance: '{{$labels.kubernetes_pod_node_name}}'
+        monitored_by_iscp: "true"
+      annotations:
+        description: Logstash queue percentage of job {{ $labels.job }} is more than {{printf "%.0f" $value}} %.

@@ -1,0 +1,20 @@
+---
+#
+# Dynamic provisioning on IKS clusters
+# NOTE: all templated varibles will be filled by the CICD tool
+#
+
+ apiVersion: v1
+ kind: PersistentVolumeClaim
+ metadata:
+   name: c-logging-logstash
+   namespace: c-logging
+   labels:
+     k8s-app: c-logging-logstash
+ spec:
+   accessModes:
+   - ReadWriteOnce
+   resources:
+     requests:
+       storage: "{{ logstashStorageSize }}"
+   storageClassName: "{{ logstashStorageClass }}"

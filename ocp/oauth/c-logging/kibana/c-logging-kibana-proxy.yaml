@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: c-logging-kibana-proxy-secret
+  namespace: c-logging
+type: Opaque
+data:
+  session_secret: {{ sessionSecretB64 }}

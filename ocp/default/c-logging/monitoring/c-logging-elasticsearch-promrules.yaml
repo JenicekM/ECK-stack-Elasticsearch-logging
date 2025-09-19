@@ -1,0 +1,108 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: c-logging-elasticsearch-exporter
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch-exporter
+spec:
+  groups:
+    - name: ElasticSearch
+      rules:
+
+# ElasticSearch Cluster Status
+      - alert: ElasticSearchClusterStatusYellow
+        expr: sum(elasticsearch_cluster_health_status{service="c-logging-elasticsearch-metrics",namespace="c-logging",color="yellow"}) by (cluster,namespace) > 0
+        for: 5m
+        labels:
+          severity: warning
+          monitored_by_iscp: "true"
+        annotations:
+          summary: "{{ $labels.cluster }} in namespace {{ $labels.namespace }} is in Yellow state"
+          description: "{{ $labels.cluster }} in namespace {{ $labels.namespace }} is in Yellow state"
+
+      - alert: ElasticSearchClusterStatusRed
+        expr: sum(elasticsearch_cluster_health_status{service="c-logging-elasticsearch-metrics",namespace="c-logging",color="red"}) by (cluster,namespace) > 0
+        for: 5m
+        labels:
+          severity: critical
+          monitored_by_iscp_calls: "true"
+        annotations:
+          summary: "{{ $labels.cluster }} in namespace {{ $labels.namespace }} is in RED state"
+          description: "{{ $labels.cluster }} in namespace {{ $labels.namespace }} is in RED state"
+
+# ElasticSearch Indexes
+      - alert: ReadOnlyIndex
+        expr: elasticsearch_indices_settings_stats_read_only_indices{service="c-logging-elasticsearch-metrics",namespace="c-logging"} > 0
+        for: 5m
+        labels:
+          severity: critical
+          monitored_by_iscp_calls: "true"
+        annotations:
+          summary: "Instance {{ $labels.instance }} has Index in read only"
+          description: "Instance {{ $labels.instance }} of job {{ $labels.job }} has {{ $value }} Indexes in read only for more than 5 minutes."
+
+# ElasticSearch Snapshot Lifecycle Management (SLM)
+      - alert: ElasticsearchSLM-snapshot
+        expr: hour((time() - elasticsearch_snapshot_stats_snapshot_end_time_timestamp{state="SUCCESS",service="c-logging-elasticsearch-metrics",namespace="c-logging"})) > 25
+        for: 5m
+        labels:
+          severity: warning
+          monitored_by_iscp: "true"
+        annotations:
+          summary: "Snapshot SLM of job {{ $labels.job }} has not been executed SUCCESSFULLY in last {{ $value }} hours."
+          description: "Snapshot SLM of job {{ $labels.job }} has not been executed SUCCESSFULLY in last {{ $value }} hours."
+
+# ElasticSearch Storage
+      - alert: ElasticSearchClusterLowDisk
+        expr: 1 - (elasticsearch_filesystem_data_available_bytes{service="c-logging-elasticsearch-metrics",namespace="c-logging"} / (elasticsearch_filesystem_data_size_bytes{service="c-logging-elasticsearch-metrics",namespace="c-logging"}) ) > 0.75
+        for: 5m
+        labels:
+          severity: warning
+          monitored_by_iscp: "true"
+        annotations:
+          summary: "ElasticSearch Disk usage is above 75% (current value is: {{ $value }})"
+          description: "ElasticSearch Disk usage is above 75% (current value is: {{ $value }})"
+
+      - alert: ElasticSearchClusterLowDisk
+        expr: 1 - (elasticsearch_filesystem_data_available_bytes{service="c-logging-elasticsearch-metrics",namespace="c-logging"} / (elasticsearch_filesystem_data_size_bytes{service="c-logging-elasticsearch-metrics",namespace="c-logging"}) ) > 0.80
+        for: 5m
+        labels:
+          severity: critical
+          monitored_by_iscp_calls: "true"
+        annotations:
+          summary: "ElasticSearch Disk usage is above 80% (current value is: {{ $value }})"
+          description: "ElasticSearch Disk usage is above 80% (current value is: {{ $value }})"
+
+# ElasticSearch JVM
+      - alert: ElasticsearchHeapTooHigh
+        expr: |
+          elasticsearch_jvm_memory_used_bytes{service="c-logging-elasticsearch-metrics",namespace="c-logging", area="heap"} / elasticsearch_jvm_memory_max_bytes{service="c-logging-elasticsearch-metrics",namespace="c-logging", area="heap"}
+          > 0.9
+        for: 15m
+        labels:
+          severity: critical
+          monitored_by_iscp_calls: "true"
+        annotations:
+          description: The heap usage is over 90% for 15m
+          summary: ElasticSearch node {{ $labels.node }} heap usage is high
+
+#    - name: c-logging-elasticsearch
+#      rules:
+#        - record: elasticsearch_filesystem_data_used_percent
+#          expr: |
+#            100 * (elasticsearch_filesystem_data_size_bytes{service="c-logging-elasticsearch-metrics"} - elasticsearch_filesystem_data_free_bytes{service="c-logging-elasticsearch-metrics"})
+#            / elasticsearch_filesystem_data_size_bytes{service="c-logging-elasticsearch-metrics"}
+#        - record: elasticsearch_filesystem_data_free_percent
+#          expr: 100 - elasticsearch_filesystem_data_used_percent{service="c-logging-elasticsearch-metrics"}
+#
+#        - alert: ElasticsearchTooFewNodesRunning
+#          expr: elasticsearch_cluster_health_number_of_nodes{service="c-logging-elasticsearch-metrics"} < 3
+#          for: 5m
+#          labels:
+#            severity: critical
+#            monitored_by_iscp_calls: "true"
+#          annotations:
+#            description: There are only {{ $value }} < 3 ElasticSearch nodes running
+#            summary: ElasticSearch running on less than 3 nodes

@@ -1,0 +1,52 @@
+# Example: Dynamic provisioning on IKS clusters
+# NOTE: all templated varibles will be filled by the CICD tool
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: elasticsearch-data-c-logging-elasticsearch-es-node-0
+ namespace: c-logging
+ labels:
+  k8s-app: c-logging-elasticsearch
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: "{{ elasticsearchStorageClass }}"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: elasticsearch-data-c-logging-elasticsearch-es-node-1
+ namespace: c-logging
+ labels:
+  k8s-app: c-logging-elasticsearch
+
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: "{{ elasticsearchStorageClass }}"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: elasticsearch-data-c-logging-elasticsearch-es-node-2
+ namespace: c-logging
+ labels:
+  k8s-app: c-logging-elasticsearch
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ elasticsearchStorageSize }}
+  storageClassName: "{{ elasticsearchStorageClass }}"

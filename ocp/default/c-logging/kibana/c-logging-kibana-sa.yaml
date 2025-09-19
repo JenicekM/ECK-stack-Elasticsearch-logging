@@ -1,0 +1,14 @@
+---
+#
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    serviceaccounts.openshift.io/oauth-redirectreference.c-logging-kibana: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":    {"kind":"Route","name":"c-logging-kibana-route"}}'
+  name: c-logging-kibana
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-kibana
+imagePullSecrets:
+  - name: {{ cCatalogBaseimagePullSecret }}

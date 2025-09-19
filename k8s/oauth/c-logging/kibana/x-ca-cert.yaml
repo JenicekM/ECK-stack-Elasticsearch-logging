@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: x-ca-cert
+  namespace: c-logging
+type: kubernetes.io/tls
+data:
+  tls.crt: "{{ privateCacertCert }}"
+  tls.key: ""

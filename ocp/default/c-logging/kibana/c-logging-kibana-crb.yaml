@@ -1,0 +1,13 @@
+## Custom clusterrolebing to bind clusterrole with SA
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: c-logging-kibana
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: c-logging-kibana
+subjects:
+- kind: ServiceAccount
+  name: c-logging-kibana
+  namespace: c-logging

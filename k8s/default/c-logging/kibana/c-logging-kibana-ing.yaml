@@ -1,0 +1,27 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: c-logging-kibana
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-kibana
+  annotations:
+    kubernetes.io/ingress.class: "d-ingress"
+spec:
+  rules:
+    - host: "{{ kibanaHost }}"
+      http:
+        paths:
+        - path: /
+          backend:
+            service:
+              name: c-logging-kibana-kb-http
+              port:
+                number: 5601
+          pathType: ImplementationSpecific
+  tls:
+  # TODO: add client certificate
+  # - secretName: customer-cert-secret
+  - hosts:
+    - "{{ kibanaHost }}"

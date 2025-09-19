@@ -1,0 +1,297 @@
+# This config sets up an Elasticsearch cluster with 3 nodes in multizone environment.
+#
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: c-logging-elasticsearch
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+    app.kubernetes.io/managed-by: iscp
+    app.kubernetes.io/app-name: application_logging
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: application
+    app.kubernetes.io/component: elasticsearch
+    app.kubernetes.io/version: 8.17.0
+spec:
+  image: "{{ imageInstanceLocation }}/{{ elasticImageName }}:{{ elasticImageTag }}"
+  # #
+  # # Uncomment this (secureSettings section) if s3 backup is needed
+  # # 
+  secureSettings:
+  - secretName: c-logging-elasticsearch-s3-credentials
+  version: 8.17.0
+  http:
+    service:
+      spec:
+        type: ClusterIP
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  nodeSets:
+  # Zone1
+  - name: node-0
+    count: 1
+    config:
+      node.master: true
+      node.data: true
+      node.ingest: true
+      node.attr.zone: <zone1>           # Specify here the zone
+      cluster.routing.allocation.awareness.attributes: zone
+      node.store.allow_mmap: true
+      # by default - true - if we change to false, we disable the built in of logs-*, metrics-*, synthetics-*
+      stack.templates.enabled: false 
+      # Disable security pack to disable auth of ELK
+      xpack.security.enabled: false 
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#      path.repo: ["/usr/share/elasticsearch/backup"]
+    podTemplate:
+      metadata:
+        name: c-logging-elasticsearch
+        labels:
+          k8s-app: c-logging-elasticsearch
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - <zone1>             # Specify here the zone
+        serviceAccountName: c-logging-elasticsearch
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#        - name: chown-backup
+#          securityContext:
+#            privileged: true
+#          command:
+#          - sh
+#          - -c
+#          - |
+#            set -e;
+#            set -x;
+#            chown 1000:1000 /usr/share/elasticsearch/backup;
+#            for datadir in $(find /usr/share/elasticsearch/backup -mindepth 1 -maxdepth 1 -not -name ".snapshot"); do
+#              chown -R 1000:1000 $datadir;
+#            done
+        # If we found problems related with node.lock
+        # - name: chown-data
+        #   securityContext:
+        #     runAsUser: 0
+        #     privileged: true
+        #   command:
+        #   - sh
+        #   - -c
+        #   - |
+        #     set -e;
+        #     set -x;
+        #     chown -R 1000:1000 /usr/share/elasticsearch/data;
+        containers:
+        - name: elasticsearch
+## Uncomment this (imagePullPolicy) if you need to download the image 'Always'. By default the pull policy of all containers is set to 'IfNotPresent'
+          imagePullPolicy: Always
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 500m
+            limits:
+              memory: 4Gi
+              cpu: 1
+          securityContext: 
+            capabilities:
+              add: ["SYS_CHROOT"]
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#          volumeMounts:
+#            - name: elasticsearch-backup
+#              mountPath: /usr/share/elasticsearch/backup
+#        volumes:
+#        - name: elasticsearch-backup
+#          persistentVolumeClaim:
+#            claimName: elasticsearch-data-c-logging-elasticsearch-backup
+  # Zone2
+  - name: node-1
+    count: 1
+    config:
+      node.master: true
+      node.data: true
+      node.ingest: true
+      node.attr.zone: <zone2>           # Specify here the zone
+      cluster.routing.allocation.awareness.attributes: zone
+      node.store.allow_mmap: true
+      # by default - true - if we change to false, we disable the built in of logs-*, metrics-*, synthetics-*
+      stack.templates.enabled: false 
+      # Disable security pack to disable auth of ELK
+      xpack.security.enabled: false 
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#      path.repo: ["/usr/share/elasticsearch/backup"]
+    podTemplate:
+      metadata:
+        name: c-logging-elasticsearch
+        labels:
+          k8s-app: c-logging-elasticsearch
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - <zone2>             # Specify here the zone
+        serviceAccountName: c-logging-elasticsearch
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#        - name: chown-backup
+#          securityContext:
+#            privileged: true
+#          command:
+#          - sh
+#          - -c
+#          - |
+#            set -e;
+#            set -x;
+#            chown 1000:1000 /usr/share/elasticsearch/backup;
+#            for datadir in $(find /usr/share/elasticsearch/backup -mindepth 1 -maxdepth 1 -not -name ".snapshot"); do
+#              chown -R 1000:1000 $datadir;
+#            done
+        # If we found problems related with node.lock
+        # - name: chown-data
+        #   securityContext:
+        #     runAsUser: 0
+        #     privileged: true
+        #   command:
+        #   - sh
+        #   - -c
+        #   - |
+        #     set -e;
+        #     set -x;
+        #     chown -R 1000:1000 /usr/share/elasticsearch/data;
+        containers:
+        - name: elasticsearch
+## Uncomment this (imagePullPolicy) if you need to download the image 'Always'. By default the pull policy of all containers is set to 'IfNotPresent'
+          imagePullPolicy: Always
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 500m
+            limits:
+              memory: 4Gi
+              cpu: 1
+          securityContext: 
+            capabilities:
+              add: ["SYS_CHROOT"]
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#          volumeMounts:
+#            - name: elasticsearch-backup
+#              mountPath: /usr/share/elasticsearch/backup
+#        volumes:
+#        - name: elasticsearch-backup
+#          persistentVolumeClaim:
+#            claimName: elasticsearch-data-c-logging-elasticsearch-backup
+  # Zone3
+  - name: node-2
+    count: 1
+    config:
+      node.master: true
+      node.data: true
+      node.ingest: true
+      node.attr.zone: <zone3>           # Specify here the zone
+      cluster.routing.allocation.awareness.attributes: zone
+      node.store.allow_mmap: true
+      # by default - true - if we change to false, we disable the built in of logs-*, metrics-*, synthetics-*
+      stack.templates.enabled: false 
+      # Disable security pack to disable auth of ELK
+      xpack.security.enabled: false 
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#      path.repo: ["/usr/share/elasticsearch/backup"]
+    podTemplate:
+      metadata:
+        name: c-logging-elasticsearch
+        labels:
+          k8s-app: c-logging-elasticsearch
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - <zone3>             # Specify here the zone
+        serviceAccountName: c-logging-elasticsearch
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#        - name: chown-backup
+#          securityContext:
+#            privileged: true
+#          command:
+#          - sh
+#          - -c
+#          - |
+#            set -e;
+#            set -x;
+#            chown 1000:1000 /usr/share/elasticsearch/backup;
+#            for datadir in $(find /usr/share/elasticsearch/backup -mindepth 1 -maxdepth 1 -not -name ".snapshot"); do
+#              chown -R 1000:1000 $datadir;
+#            done
+        # If we found problems related with node.lock
+        # - name: chown-data
+        #   securityContext:
+        #     runAsUser: 0
+        #     privileged: true
+        #   command:
+        #   - sh
+        #   - -c
+        #   - |
+        #     set -e;
+        #     set -x;
+        #     chown -R 1000:1000 /usr/share/elasticsearch/data;
+        containers:
+        - name: elasticsearch
+## Uncomment this (imagePullPolicy) if you need to download the image 'Always'. By default the pull policy of all containers is set to 'IfNotPresent'
+          imagePullPolicy: Always
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 500m
+            limits:
+              memory: 4Gi
+              cpu: 1
+          securityContext: 
+            capabilities:
+              add: ["SYS_CHROOT"]
+## Enable only if you use PVC storage for backup. Not recommended in multizone environments
+#          volumeMounts:
+#            - name: elasticsearch-backup
+#              mountPath: /usr/share/elasticsearch/backup
+#        volumes:
+#        - name: elasticsearch-backup
+#          persistentVolumeClaim:
+#            claimName: elasticsearch-data-c-logging-elasticsearch-backup

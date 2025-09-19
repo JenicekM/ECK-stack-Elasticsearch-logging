@@ -1,0 +1,94 @@
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: c-logging-kibana
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-kibana
+    app.kubernetes.io/managed-by: iscp
+    app.kubernetes.io/app-name: application_logging
+    app.kubernetes.io/app-catalog: simple
+    app.kubernetes.io/app-sla: 24x7
+    app.kubernetes.io/app-management: application
+    app.kubernetes.io/component: kibana
+    app.kubernetes.io/version: 8.17.0
+spec:
+  image: "{{ imageInstanceLocation }}/{{ kibanaImageName }}:{{ kibanaImageTag }}"
+  version: 8.17.0
+  count: 1
+  elasticsearchRef:
+    name: c-logging-elasticsearch
+  config:
+    elasticsearch.requestTimeout: 90000
+    xpack.security.showInsecureClusterWarning: false
+  http:
+    service:
+      spec:
+        type: ClusterIP
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  podTemplate:
+    metadata:
+      name: c-logging-kibana
+    spec:
+      serviceAccountName: c-logging-kibana-oauth
+      ## Allow the oauth-proxy access to the token
+      automountServiceAccountToken: true
+      containers:
+      - name: kibana
+        resources:
+          requests:
+            memory: 1Gi
+            cpu: 0.5
+          limits:
+            memory: {{ kibanaResourcesMemoryLimit }}
+            cpu: {{ kibanaResourcesCPULimit }}
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 5601
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+          
+      - name: oauth-proxy 
+        args:
+          - -provider=openshift
+          - -https-address=:8443
+          - -email-domain=*
+          - -upstream=http://localhost:5601
+          - '-openshift-sar={"resource": "namespaces", "verb": "get"}'
+          - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get"}}'
+          - -tls-cert=/etc/tls/private/tls.crt
+          - -tls-key=/etc/tls/private/tls.key
+          - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+          - -cookie-secret-file=/etc/proxy/secrets/session_secret
+          - -cookie-expire=24h0m0s
+          - -openshift-service-account=c-logging-kibana-oauth
+          - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          - -skip-auth-regex=^/metrics
+        image: "{{ proxyImageInstanceLocation }}/{{ oauthProxyImageName }}:{{ oauthProxyImageTag }}"
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: oauth-proxy
+            containerPort: 8443    
+            protocol: TCP
+        volumeMounts:
+          - mountPath: /etc/tls/private
+            name: secret-proxy-tls
+          - mountPath: /etc/proxy/secrets
+            name: secret-proxy
+      volumes:
+      - name: secret-proxy-tls
+        secret:
+          defaultMode: 420
+          secretName: c-logging-kibana-proxy-tls
+      - name: secret-proxy
+        secret:
+          defaultMode: 420
+          secretName: c-logging-kibana-proxy-secret

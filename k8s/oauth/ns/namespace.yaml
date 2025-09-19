@@ -1,0 +1,7 @@
+# add neccesary iscp or customer labels
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: c-logging
+  labels:
+    c-monitoring/enabled: "true"

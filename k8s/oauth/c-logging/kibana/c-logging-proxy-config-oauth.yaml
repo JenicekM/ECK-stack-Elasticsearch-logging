@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oauth2-proxy-cfg-kibana
+  namespace: c-logging
+stringData:
+  oauth2_proxy.cfg: |-
+    cookie_secret="{{ sessionSecretB64 }}"
+    skip_provider_button=true
+    pass_access_token=true
+    skip_jwt_bearer_tokens=true
+    whitelist_domains=["*"]
+    email_domains=["kyndryl.com"]
+    pass_host_header=true
+    client_id="{{ oauthProxyId }}"
+    client_secret="{{ oauthProxyPassword }}"
+    cookie_secure=true
+    cookie_httponly=false
+    provider="oidc"
+    oidc_issuer_url="{{ OauthServerIssuer }}"
+    # set_xauthrequest=true
+    # ssl_upstream_insecure_skip_verify=true
+    force_https=true
+    cookie_expire="1h"
+    cookie_refresh="30m"

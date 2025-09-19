@@ -1,0 +1,12 @@
+---
+#
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: c-logging-es-exporter
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+imagePullSecrets:
+  - name: {{ cCatalogBaseimagePullSecret }}

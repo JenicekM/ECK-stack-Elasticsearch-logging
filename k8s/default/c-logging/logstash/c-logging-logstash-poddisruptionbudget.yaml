@@ -1,0 +1,18 @@
+---
+# Source: logstash/templates/poddisruptionbudget.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: c-logging-logstash
+  namespace: c-logging
+  labels:
+    app: logstash
+    chart: logstash-2.4.0
+    release: c-logging-logstash
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: logstash
+      release: c-logging-logstash
+  maxUnavailable: 1

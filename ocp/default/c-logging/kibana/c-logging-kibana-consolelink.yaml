@@ -1,0 +1,10 @@
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: c-logging-kibana
+spec:
+  applicationMenu:
+    section: ACOC
+  href: https://{{ kibanaHost }}
+  location: ApplicationMenu
+  text: "c-logging/Kibana"

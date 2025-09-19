@@ -1,0 +1,13 @@
+---
+---
+# Service Account for Elastic workload
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: c-logging-elasticsearch
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+    app.kubernetes.io/version: "8.17.0"
+imagePullSecrets:
+  - name: {{ cCatalogBaseimagePullSecret }}

@@ -1,0 +1,56 @@
+---
+#
+# For Minikube environments:
+# NOTE: Minikube has a default "storage class":
+#     name: standard
+#     annotations:
+#           storageclass.kubernetes.io/is-default-class: "true"
+#
+# If you want to use this PV, you must create it first, before PVC creation
+#
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  finalizers:
+  - kubernetes.io/pv-protection
+  name: c-logging-elasticsearch-backup
+  labels:
+    k8s-app: c-logging-elasticsearch
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 50Gi
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: elasticsearch-data-c-logging-elasticsearch-backup
+    namespace: c-logging
+  hostPath:
+   path: "/backup"
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  volumeMode: Filesystem
+
+---
+#
+# PVC Backup - Definitions for static PVC provision in Minikube
+#
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-data-c-logging-elasticsearch-backup
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: ""
+  volumeName: c-logging-elasticsearch-backup

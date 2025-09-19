@@ -1,0 +1,64 @@
+---
+#
+# For OnPrem clusters with static NFS environments
+# NOTE: all templated varibles will be filled by the CICD tool
+#
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  finalizers:
+  - kubernetes.io/pv-protection
+  name: c-logging-elasticsearch-backup
+  labels:
+    k8s-app: c-logging-elasticsearch
+spec:
+  capacity:
+    storage: "{{ elasticsearchBackupStorageSize }}"
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: elasticsearch-data-c-logging-elasticsearch-backup
+    namespace: c-logging
+  storageClassName: ""
+  mountOptions:
+   - nordirplus
+   - hard
+   - nolock
+   - local_lock=all
+   - nfsvers=3
+   - mountvers=3
+   - proto=tcp
+   - mountproto=udp
+   - noatime
+   - nodiratime
+  nfs:
+    server: "{{ nfsServer }}"
+    path: "{{ nfsShare }}/docker-volumes/{{ blockId }}/{{ k8sClusterId }}/c-logging/c-logging-elasticsearch/backup"
+
+---
+#
+# PVC Backup - Definitions for static PVC provision in vanilla clusters
+#
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-data-c-logging-elasticsearch-backup
+  namespace: c-logging
+  labels:
+    k8s-app: c-logging-elasticsearch
+  finalizers:
+    - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ elasticsearchBackupStorageSize }}
+  storageClassName: ""
+  volumeName: c-logging-elasticsearch-backup
