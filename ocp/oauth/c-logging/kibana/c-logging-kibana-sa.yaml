@@ -12,4 +12,4 @@ metadata:
     k8s-app: c-logging-kibana
 # imagePullSecrets:
 #   - name: {{ cCatalogBaseimagePullSecret }} 
-  - name: {{ imagePullSecretBase }}
+#   - name: {{ imagePullSecretBase }}

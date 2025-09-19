@@ -70,7 +70,7 @@ spec:
       #       for datadir in $(find /usr/share/logstash/data/ -mindepth 1 -maxdepth 1 -not -name ".snapshot"); do
       #         chown -R 1000:1000 $datadir;
       #       done
-      #     image: "{{ imageInstanceLocation }}/{{ busyboxImageName }}:{{ busyboxImageTag }}"
+      #     image: "busybox:1.36"
       #     name: chown
       #     securityContext:
       #       privileged: true
@@ -81,7 +81,7 @@ spec:
       containers:
         ## logstash
         - name: logstash
-          image: "{{ imageInstanceLocation }}/{{ logstashImageName }}:{{ logstashImageTag }}"
+          image: "docker.elastic.co/logstash/logstash:8.12.2"
           imagePullPolicy: IfNotPresent
           ports:
             - name: monitor
@@ -149,8 +149,8 @@ spec:
                   name: c-logging-elasticsearch-es-elastic-user
           resources:
             limits:
-              cpu: {{ logstashResourcesCPULimit }}
-              memory: {{ logstashResourcesMemoryLimit }}
+              cpu: 500m
+              memory: 1Gi
             requests:
               cpu: 500m
               memory: 1Gi
@@ -168,7 +168,7 @@ spec:
               subPath: ca.crt
         ## logstash-exporter
         - name: logstash-exporter
-          image: "{{ imageInstanceLocation }}/{{ logstashExporterImageName }}:{{ logstashExporterImageTag }}"
+          image: "kuskoman/logstash-exporter:v1.6.2"
           imagePullPolicy: IfNotPresent
           # command: ["/bin/sh", "-c"]
           # ## Delay start of logstash-exporter to give logstash more time to come online.
@@ -200,8 +200,8 @@ spec:
             timeoutSeconds: 60
           resources:
             limits:
-              cpu: {{ logstashExporterResourcesCPULimit }}
-              memory: {{ logstashExporterResourcesMemoryLimit }}
+              cpu: 100m
+              memory: 128Mi
             requests:
               cpu: 50m
               memory: 64Mi

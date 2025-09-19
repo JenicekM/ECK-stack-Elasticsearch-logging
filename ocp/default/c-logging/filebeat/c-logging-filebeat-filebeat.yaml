@@ -18,7 +18,7 @@ metadata:
 spec:
   type: filebeat
   version: 8.17.0
-  image: "{{ imageInstanceLocation }}/{{ filebeatImageName }}:{{ filebeatImageTag }}"
+  image: "docker.elastic.co/beats/filebeat:8.12.2"
   elasticsearchRef:
     name: c-logging-elasticsearch
   kibanaRef:
@@ -186,8 +186,8 @@ spec:
             privileged: true
           resources:
             limits:
-              cpu: {{ filebeatResourcesCPULimit }}
-              memory: {{ filebeatResourcesMemoryLimit }}
+              cpu: 200m
+              memory: 250Mi
             requests:
               cpu: 100m
               memory: 100Mi

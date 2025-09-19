@@ -157,15 +157,15 @@ deployment:
         value: "8.17.0-1.10.0"
 
       # Limit resources
-      - name: "{{ elasticsearchNodes }}"
+      - name: "3"
         value: "3"
-      - name: "{{ elasticsearchResourcesMemoryLimit }}"
+      - name: "6Gi"
         value: "6Gi"
-      - name: "{{ elasticsearchResourcesCPULimit }}"
+      - name: "1"
         value: "1"
-      - name: "{{ elasticsearchResourcesMemoryRequests }}"
+      - name: "4Gi"
         value: "4Gi"
-      - name: "{{ elasticsearchResourcesCPURequests }}"
+      - name: "500m"
         value: "500m"
 
       # To be filled only with multizone clusters
@@ -183,13 +183,13 @@ deployment:
         value: "8.17.0-1.10.0"
 
       # Limit resources
-      - name: "{{ kibanaResourcesMemoryLimit }}"
+      - name: "1Gi"
         value: "1Gi"
-      - name: "{{ kibanaResourcesCPULimit }}"
+      - name: "500m"
         value: "500m"
 
       # OCP Route
-      - name: "{{ kibanaHost }}"
+      - name: "c-logging-kibana..apps.cluster-p2kf8.dynamic.redhatworkshops.io "
         value: c-logging-kibana.apps.<subDomain_default_OpenShift_Router>             #e.g c-logging-kibana.apps.onp-tst-tst-0002-k01.lab.domain
 
       # Logstash
@@ -215,13 +215,13 @@ deployment:
       #   value: "<targetCluster>"
 
       # Limit resources
-      - name: "{{ logstashResourcesMemoryLimit }}"
+      - name: "1Gi"
         value: "1Gi"
-      - name: "{{ logstashResourcesCPULimit }}"
+      - name: "500m"
         value: "500m"
-      - name: "{{ logstashExporterResourcesMemoryLimit }}"
+      - name: "128Mi"
         value: "128Mi"
-      - name: "{{ logstashExporterResourcesCPULimit }}"
+      - name: "100m"
         value: "100m"
       
       # Filebeat
@@ -235,9 +235,9 @@ deployment:
         value: "20230331-1.8.1"
 
       # Limit resources
-      - name: "{{ filebeatResourcesMemoryLimit }}"
+      - name: "250Mi"
         value: "250Mi"
-      - name: "{{ filebeatResourcesCPULimit }}"
+      - name: "200m"
         value: "200m"
 
       # Elasticsearch-exporter
@@ -247,11 +247,11 @@ deployment:
         value: "1.7.0-1.9.0"
 
       # Backup
-      - name: "{{ snapshotRepoName }}"                            # Default: backup_repo
+      - name: "backup_repo"                            # Default: backup_repo
         value: "backup_repo"
-      - name: "{{ snapshotSchedule }}"                            # Snapshot scheduling. Default: Every day at 4:00AM
+      - name: ""0 30 2 * * ?""                            # Snapshot scheduling. Default: Every day at 4:00AM
         value: "0 30 2 * * ?"
-      - name: "{{ snapshotRetention }}"                           # Snapshot retention. Default: 7 days
+      - name: "7d"                           # Snapshot retention. Default: 7 days
         value: "7d"
 
       # Vault paths used only with S3 backup

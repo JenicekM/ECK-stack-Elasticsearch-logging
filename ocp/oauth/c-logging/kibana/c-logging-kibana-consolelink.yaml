@@ -5,6 +5,6 @@ metadata:
 spec:
   applicationMenu:
     section: ACOC
-  href: https://{{ kibanaHost }}
+  href: https://c-logging-kibana..apps.cluster-p2kf8.dynamic.redhatworkshops.io 
   location: ApplicationMenu
   text: "c-logging/Kibana"

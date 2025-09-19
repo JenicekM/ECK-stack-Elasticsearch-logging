@@ -24,7 +24,7 @@ spec:
       serviceAccount: c-logging-kibana
       initContainers:
       - name: wait
-        image: "{{ imageInstanceLocation }}/{{ kibanaImageName }}:{{ kibanaImageTag }}"
+        image: "docker.elastic.co/kibana/kibana:8.12.2"
         imagePullPolicy: IfNotPresent
         env:
         - name: KIBANA_PROTOCOL
@@ -45,7 +45,7 @@ spec:
           echo "Done"
       containers:
       - name: c-logging-kibana-index-pattern-creation
-        image: "{{ imageInstanceLocation }}/{{ kibanaImageName }}:{{ kibanaImageTag }}"
+        image: "docker.elastic.co/kibana/kibana:8.12.2"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/bash

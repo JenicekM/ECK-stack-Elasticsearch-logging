@@ -260,7 +260,7 @@ About the tool enabled by default `d-auth` is explained here in the new [documen
   
   * [c-logging-ilm](./k8s/default/c-logging/ilm-slm-policies/c-logging-ilm-job.yaml) runs to configure the delete of index that have more than a week (7d)
   
-  * [c-logging-slm](./k8s/default/c-logging/ilm-slm-policies/c-logging-slm-job.yaml) runs to configure a nigthly snapshot that save index with a desire retention from the cicd variable {{ snapshotRetention }}
+  * [c-logging-slm](./k8s/default/c-logging/ilm-slm-policies/c-logging-slm-job.yaml) runs to configure a nigthly snapshot that save index with a desire retention from the cicd variable 7d
 
 It's important once you install or upgrade the logging stack to ensure that both job are completed succssefully 
 

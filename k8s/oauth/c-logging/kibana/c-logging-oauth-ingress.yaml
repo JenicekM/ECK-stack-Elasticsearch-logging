@@ -13,7 +13,7 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: "subrequest_output_buffer_size 8k;"
 spec:
   rules:
-    - host: "{{ kibanaHost }}"
+    - host: "c-logging-kibana..apps.cluster-p2kf8.dynamic.redhatworkshops.io "
       http:
         paths:
         - path: /
@@ -25,5 +25,5 @@ spec:
           pathType: ImplementationSpecific
   tls:
   - hosts:
-    - "{{ kibanaHost }}"
+    - "c-logging-kibana..apps.cluster-p2kf8.dynamic.redhatworkshops.io "
     secretName: oauth-cert

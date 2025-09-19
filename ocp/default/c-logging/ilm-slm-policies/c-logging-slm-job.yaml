@@ -75,13 +75,13 @@ spec:
         #
         #
         - name: SNAPSHOT_REPO_NAME
-          value: "{{ snapshotRepoName }}"
+          value: "backup_repo"
         #
         #
         - name: SNAPSHOT_SCHEDULE
-          value: "{{ snapshotSchedule }}"
+          value: ""0 30 2 * * ?""
         - name: SNAPSHOT_RETENTION
-          value: "{{ snapshotRetention }}"
+          value: "7d"
         resources:
           limits:
             cpu: 400m

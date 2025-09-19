@@ -10,7 +10,7 @@ metadata:
     kubernetes.io/ingress.class: "d-ingress"
 spec:
   rules:
-    - host: "{{ kibanaHost }}"
+    - host: "c-logging-kibana..apps.cluster-p2kf8.dynamic.redhatworkshops.io "
       http:
         paths:
         - path: /
@@ -24,4 +24,4 @@ spec:
   # TODO: add client certificate
   # - secretName: customer-cert-secret
   - hosts:
-    - "{{ kibanaHost }}"
+    - "c-logging-kibana..apps.cluster-p2kf8.dynamic.redhatworkshops.io "

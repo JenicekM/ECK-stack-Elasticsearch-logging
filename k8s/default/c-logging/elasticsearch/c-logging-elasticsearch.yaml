@@ -27,7 +27,7 @@ spec:
 
   nodeSets:
   - name: node
-    count: {{ elasticsearchNodes }}
+    count: 3
     config:
       node.roles: ["master","data","ingest"]
       # node.master: true # We change the form (line 32)
@@ -104,11 +104,11 @@ spec:
             value: "-Xms4g -Xmx4g -Dlog4j2.formatMsgNoLookups=true"
           resources:
             requests:
-              memory: {{ elasticsearchResourcesMemoryRequests }}
-              cpu: {{ elasticsearchResourcesCPURequests }}
+              memory: 4Gi
+              cpu: 500m
             limits:
-              memory: {{ elasticsearchResourcesMemoryLimit }}
-              cpu: {{ elasticsearchResourcesCPULimit }}
+              memory: 6Gi
+              cpu: 1
 
           securityContext: 
             capabilities:

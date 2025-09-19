@@ -6,7 +6,7 @@ metadata:
   namespace: c-logging
 spec:
   host: >-
-    {{ kibanaHost }}
+    c-logging-kibana..apps.cluster-p2kf8.dynamic.redhatworkshops.io 
   path: /
   to:
     kind: Service

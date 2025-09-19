@@ -35,7 +35,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: elasticsearch-exporter
-          image: "{{ imageInstanceLocation }}/{{ elasticExporterImageName }}:{{ elasticExporterImageTag }}"
+          image: "bitnami/elasticsearch-exporter:1.7.0"
           imagePullPolicy: IfNotPresent
           command:
           - /bin/sh

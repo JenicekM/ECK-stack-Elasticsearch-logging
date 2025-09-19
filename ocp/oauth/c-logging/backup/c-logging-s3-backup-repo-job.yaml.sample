@@ -71,11 +71,11 @@ spec:
         - name: COS_BUCKET
           value: "{{ cosBucket }}"
         - name: SNAPSHOT_REPO_NAME
-          value: "{{ snapshotRepoName }}"
+          value: "backup_repo"
         - name: SNAPSHOT_SCHEDULE
-          value: "{{ snapshotSchedule }}"
+          value: ""0 30 2 * * ?""
         - name: SNAPSHOT_RETENTION
-          value: "{{ snapshotRetention }}"
+          value: "7d"
         - name: ES_JAVA_OPTS
           value: "-Dlog4j2.formatMsgNoLookups=true"
         resources:
